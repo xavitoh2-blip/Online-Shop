@@ -8,7 +8,7 @@
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; }
         body { font-family: 'Arial', sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; }
         header { background-color: #6d4c41; color: white; padding: 20px; text-align: center; }
-        .logo-container { margin-bottom: 15px; }
+        .logo-container { margin-bottom: 15px; cursor: pointer; }
         .logo-container img { max-width: 220px; height: auto; display: block; margin: 0 auto; border-radius: 10px; background: white; padding: 5px; }
         .contact-btns { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
         .btn { padding: 10px 20px; border-radius: 20px; text-decoration: none; color: white; font-weight: bold; }
@@ -23,16 +23,14 @@
         .product-card .price { font-weight: bold; color: #e67e22; font-size: 18px; }
         .product-card button { background-color: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .product-card button:hover { background-color: #d68910; }
-        
         .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000; }
         .cart-bar button { background: #25d366; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        
-        .admin-panel { background: #fff; padding: 20px; margin: 20px; border: 2px dashed #6d4c41; border-radius: 10px; }
+        #adminPanel { display: none; background: #fff; padding: 20px; margin: 20px; border: 2px dashed #6d4c41; border-radius: 10px; }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo-container">
+        <div class="logo-container" onclick="checkAdmin()">
             <img src="logo.png" alt="Logo Online Shop" onerror="this.style.display='none'">
         </div>
         <h1>Online Shop</h1>
@@ -41,14 +39,21 @@
         </div>
     </header>
     
+    <div id="adminPanel">
+        <h2>Panel de Inventario (Solo tú)</h2>
+        <p>Toca el logo nuevamente para ocultar.</p>
+        <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv" style="width: 75%; padding: 10px;">
+        <button onclick="loadInventory()" style="padding: 10px 15px; background: #6d4c41; color: white; border: none; border-radius: 5px; cursor: pointer;">Cargar Inventario</button>
+    </div>
+
     <div class="categories" id="category-container">
         <button class="category-btn" onclick="filtrarCategoria('Todos')">Todos</button>
     </div>
 
     <div class="product-grid" id="product-container">
         <div class="product-card">
-            <h3>Carga tu inventario abajo</h3>
-            <p class="price">$0.00</p>
+            <h3>Bienvenido a Online Shop</h3>
+            <p>Selecciona productos para comenzar.</p>
         </div>
     </div>
 
@@ -58,32 +63,29 @@
         <button onclick="enviarPedidoWhatsApp()">Enviar Pedido</button>
     </div>
 
-    <div class="admin-panel">
-        <h2>Panel de Inventario (Google Sheets)</h2>
-        <p>Pega el enlace CSV publicado de tu Google Sheets para actualizar la tienda:</p>
-        <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv" style="width: 75%; padding: 10px;">
-        <button onclick="loadInventory()" style="padding: 10px 15px; background: #6d4c41; color: white; border: none; border-radius: 5px; cursor: pointer;">Cargar Inventario</button>
-    </div>
-
     <script>
         let allProducts = [];
         let carrito = [];
+        let clickCount = 0;
+
+        function checkAdmin() {
+            clickCount++;
+            if(clickCount === 3) {
+                const panel = document.getElementById('adminPanel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+                clickCount = 0;
+            }
+        }
 
         async function loadInventory() {
             const url = document.getElementById('sheetUrl').value;
-            if (!url) {
-                alert('Por favor ingresa un enlace CSV válido.');
-                return;
-            }
-
+            if (!url) { alert('Ingresa un enlace CSV.'); return; }
             try {
                 const response = await fetch(url);
                 const data = await response.text();
-                
                 const rows = data.split('\n').map(row => row.split(','));
                 allProducts = [];
                 let categories = new Set(['Todos']);
-
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i];
                     if (cols.length >= 3) {
@@ -91,21 +93,16 @@
                         const categoria = cols[1] ? cols[1].trim().replace(/^"|"$/g, '') : 'General';
                         const precio = cols[2] ? cols[2].trim().replace(/^"|"$/g, '') : '0.00';
                         const imagen = cols[3] ? cols[3].trim().replace(/^"|"$/g, '') : 'https://via.placeholder.com/150';
-
                         if (nombre) {
                             allProducts.push({ nombre, categoria, precio: parseFloat(precio) || 0, imagen });
                             categories.add(categoria);
                         }
                     }
                 }
-
                 renderCategories(Array.from(categories));
                 renderProducts(allProducts);
-                alert('¡Inventario cargado exitosamente!');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar. Verifica que el enlace sea un CSV público de Google Sheets.');
-            }
+                alert('¡Inventario cargado!');
+            } catch (error) { alert('Error al cargar, verifica el enlace.'); }
         }
 
         function renderCategories(cats) {
@@ -124,33 +121,17 @@
             if (cat === 'Todos') {
                 renderProducts(allProducts);
             } else {
-                const filtered = allProducts.filter(p => p.categoria.toLowerCase() === cat.toLowerCase());
-                renderProducts(filtered);
+                renderProducts(allProducts.filter(p => p.categoria.toLowerCase() === cat.toLowerCase()));
             }
         }
 
         function renderProducts(products) {
             const container = document.getElementById('product-container');
             container.innerHTML = '';
-            
-            if (products.length === 0) {
-                container.innerHTML = '<p>No hay productos en esta categoría.</p>';
-                return;
-            }
-
             products.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.innerHTML = `
-                    <div>
-                        <img src="${p.imagen}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/150'">
-                        <h3>${p.nombre}</h3>
-                    </div>
-                    <div>
-                        <p class="price">$${p.precio.toFixed(2)}</p>
-                        <button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
-                    </div>
-                `;
+                card.innerHTML = `<div><img src="${p.imagen}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/150'"><h3>${p.nombre}</h3></div><div><p class="price">$${p.precio.toFixed(2)}</p><button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button></div>`;
                 container.appendChild(card);
             });
         }
@@ -167,23 +148,13 @@
         }
 
         function enviarPedidoWhatsApp() {
-            if (carrito.length === 0) {
-                alert('Tu carrito está vacío. Agrega productos antes de enviar el pedido.');
-                return;
-            }
-
+            if (carrito.length === 0) { alert('Carrito vacío.'); return; }
             const telefono = "50374184366";
             let detalle = "Hola, quiero hacer el siguiente pedido:\n\n";
-            
-            carrito.forEach((item, index) => {
-                detalle += `${index + 1}. ${item.nombre} - *$${item.precio.toFixed(2)}*\n`;
-            });
-
+            carrito.forEach((item, index) => { detalle += `${index + 1}. ${item.nombre} - *$${item.precio.toFixed(2)}*\n`; });
             const total = carrito.reduce((sum, item) => sum + item.precio, 0);
-            detalle += `\n*Total a pagar: $${total.toFixed(2)}*`;
-
-            const mensaje = encodeURIComponent(detalle);
-            window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+            detalle += `\n*Total: $${total.toFixed(2)}*`;
+            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(detalle)}`, '_blank');
         }
     </script>
 </body>
