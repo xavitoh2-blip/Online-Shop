@@ -101,11 +101,7 @@
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i];
                     if (cols.length >= 3) {
-                        // Columna A (índice 0) es el nombre del producto
                         const nombre = cols[0] ? cols[0].trim().replace(/^"|"$/g, '') : '';
-                        // Columna B (índice 1) es la categoría/existencia anterior (ahora usamos B o C según corresponda)
-                        // En tu Excel: Columna A = nombre_producto, Columna B = categoría (ej. 3), Columna C = Precio (ej. 2)
-                        // Vamos a leer el stock de la columna B y el precio de la columna C
                         const existencia = cols[1] ? parseInt(cols[1].trim().replace(/^"|"$/g, '')) || 0 : 0;
                         const precio = cols[2] ? parseFloat(cols[2].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
                         
