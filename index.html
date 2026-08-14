@@ -17,12 +17,19 @@
         .search-container { padding: 15px 20px 0 20px; text-align: center; }
         .search-container input { width: 100%; max-width: 400px; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; font-size: 16px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
+        /* Estilos para los botones de categorías */
+        .categories-container { display: flex; overflow-x: auto; gap: 8px; padding: 15px 20px; scrollbar-width: none; }
+        .categories-container::-webkit-scrollbar { display: none; }
+        .cat-btn { background: #fff; border: 1px solid #ccc; padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: bold; color: #555; transition: 0.2s; }
+        .cat-btn.active, .cat-btn:hover { background: #6d4c41; color: white; border-color: #6d4c41; }
+
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; padding: 20px; }
         .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card h3 { font-size: 16px; margin: 10px 0; color: #333; }
         .product-card p { font-size: 14px; color: #666; margin: 5px 0; }
         .product-card .price { font-weight: bold; color: #e67e22; font-size: 18px; }
         .product-card .stock { font-size: 12px; color: #27ae60; margin-bottom: 5px; }
+        .product-card .category-tag { font-size: 11px; background: #eee; color: #666; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 5px; }
         .product-card button { background-color: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         
         .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000; cursor: pointer; }
@@ -59,6 +66,11 @@
         <input type="text" id="searchInput" placeholder="🔍 Buscar producto..." onkeyup="filtrarProductos()">
     </div>
 
+    <!-- Contenedor de Botones de Categorías -->
+    <div class="categories-container" id="categories-container">
+        <!-- Se generan automáticamente -->
+    </div>
+
     <div class="product-grid" id="product-container">
         <div class="product-card">
             <h3>Cargando inventario...</h3>
@@ -83,9 +95,9 @@
         let allProducts = [];
         let carrito = [];
         let clickCount = 0;
+        let categoriaSeleccionada = 'TODOS';
 
         window.onload = function() {
-            // Enlace predeterminado de tu Google Sheets (TIENDA MAYOREO)
             const defaultUrl = "https://docs.google.com/spreadsheets/d/1bXSibj51JO5ilbs_HRkUy96-gTXQmC2NxGsyPXNyDU8/edit?usp=sharing";
             const savedUrl = localStorage.getItem('savedSheetUrl') || defaultUrl;
             
@@ -118,26 +130,58 @@
                 allProducts = [];
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i];
-                    if (cols.length >= 3) {
+                    if (cols.length >= 4) { // Aseguramos leer hasta la categoría (Columna D)
                         const nombre = cols[0] ? cols[0].trim().replace(/^"|"$/g, '') : '';
                         const existencia = cols[1] ? parseInt(cols[1].trim().replace(/^"|"$/g, '')) || 0 : 0;
                         const precio = cols[2] ? parseFloat(cols[2].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
+                        const categoria = cols[3] ? cols[3].trim().replace(/^"|"$/g, '').toUpperCase() : 'GENERAL';
                         
                         if (nombre && nombre !== 'nombre_producto') {
-                            allProducts.push({ nombre, existencia, precio });
+                            allProducts.push({ nombre, existencia, precio, categoria });
                         }
                     }
                 }
-                renderProducts(allProducts);
+                generarBotonesCategorias();
+                filtrarProductos();
                 if (save) { alert('¡Inventario guardado y cargado con éxito!'); }
             } catch (error) { alert('Error al cargar, verifica el enlace.'); }
+        }
+
+        function generarBotonesCategorias() {
+            const container = document.getElementById('categories-container');
+            const categoriasSet = new Set(allProducts.map(p => p.categoria));
+            
+            let html = `<button class="cat-btn ${categoriaSeleccionada === 'TODOS' ? 'active' : ''}" onclick="seleccionarCategoria('TODOS')">🌟 TODOS</button>`;
+            
+            categoriasSet.forEach(cat => {
+                if (cat) {
+                    html += `<button class="cat-btn ${categoriaSeleccionada === cat ? 'active' : ''}" onclick="seleccionarCategoria('${cat}')">${cat}</button>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        function seleccionarCategoria(cat) {
+            categoriaSeleccionada = cat;
+            generarBotonesCategorias();
+            filtrarProductos();
+        }
+
+        function filtrarProductos() {
+            const texto = document.getElementById('searchInput').value.toLowerCase();
+            const filtrados = allProducts.filter(p => {
+                const coincideTexto = p.nombre.toLowerCase().includes(texto);
+                const coincideCat = (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada);
+                return coincideTexto && coincideCat;
+            });
+            renderProducts(filtrados);
         }
 
         function renderProducts(products) {
             const container = document.getElementById('product-container');
             container.innerHTML = '';
             if (products.length === 0) {
-                container.innerHTML = '<div class="product-card"><h3>No hay productos</h3><p>Verifica tu Google Sheets.</p></div>';
+                container.innerHTML = '<div class="product-card"><h3>No hay productos</h3><p>Intenta con otra búsqueda o categoría.</p></div>';
                 return;
             }
             products.forEach(p => {
@@ -145,6 +189,7 @@
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div>
+                        <span class="category-tag">${p.categoria}</span>
                         <h3>${p.nombre}</h3>
                         <p class="stock">Disponibles: ${p.existencia}</p>
                     </div>
@@ -154,12 +199,6 @@
                     </div>`;
                 container.appendChild(card);
             });
-        }
-
-        function filtrarProductos() {
-            const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto));
-            renderProducts(filtrados);
         }
 
         function agregarAlCarrito(nombre, precio) {
