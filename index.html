@@ -8,13 +8,13 @@
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; }
         body { font-family: 'Arial', sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 90px; }
         
-        /* Cabecera con Imagen de Fondo */
+        /* Cabecera con Imagen de Fondo - URL corregida */
         header { 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://xavitoh2.github.io/xavitoh2-blip/Fondo.png'); 
-            background-size: cover !important; 
-            background-position: center !important; 
-            background-repeat: no-repeat !important;
-            background-color: #555;
+            background-color: #6d4c41; /* Color de respaldo café */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://raw.githubusercontent.com/xavitoh2/xavitoh2-blip/main/Fondo.png'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
             color: white; 
             padding: 25px 20px; 
             text-align: center; 
@@ -67,9 +67,8 @@
     
     <div id="adminPanel">
         <h2>Panel de Inventario (Solo tú)</h2>
-        <p>Toca el logo nuevamente para ocultar.</p>
-        <input type="text" id="sheetUrl" placeholder="Pega aquí tu enlace de Google Sheets" style="width: 75%; padding: 10px;">
-        <button onclick="loadInventory(true)" style="padding: 10px 15px; background: #6d4c41; color: white; border: none; border-radius: 5px; cursor: pointer;">Guardar y Cargar</button>
+        <input type="text" id="sheetUrl" placeholder="Enlace de Google Sheets" style="width: 75%; padding: 10px;">
+        <button onclick="loadInventory(true)" style="padding: 10px 15px; background: #6d4c41; color: white; border: none; border-radius: 5px; cursor: pointer;">Guardar</button>
     </div>
 
     <div class="search-container">
@@ -78,17 +77,12 @@
 
     <div class="categories-container" id="categories-container"></div>
 
-    <div class="product-grid" id="product-container">
-        <div class="product-card">
-            <h3>Cargando inventario...</h3>
-            <p>Por favor espera un momento.</p>
-        </div>
-    </div>
+    <div class="product-grid" id="product-container"></div>
 
     <div id="cartModal">
         <h3>Tu Carrito</h3>
         <div id="cartItemsList"></div>
-        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 15px; font-size: 16px; cursor: pointer;">Enviar Pedido por WhatsApp</button>
+        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 15px; font-size: 16px; cursor: pointer;">Enviar por WhatsApp</button>
     </div>
 
     <div class="cart-bar" onclick="toggleCartModal()">
@@ -119,141 +113,64 @@
             }
         }
 
-        function parseCSVLine(text) {
-            let result = [];
-            let current = '';
-            let inQuotes = false;
-            for (let i = 0; i < text.length; i++) {
-                let char = text[i];
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    result.push(current.trim().replace(/^"|"$/g, ''));
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            result.push(current.trim().replace(/^"|"$/g, ''));
-            return result;
-        }
-
         async function loadInventory(save = false) {
             let url = document.getElementById('sheetUrl').value;
             if (!url) { alert('Ingresa un enlace.'); return; }
-            if (!url.includes('format=csv')) {
-                url = url.split('/edit')[0] + '/export?format=csv';
-            }
-            if (save) {
-                localStorage.setItem('savedSheetUrl', url);
-            }
+            if (!url.includes('format=csv')) url = url.split('/edit')[0] + '/export?format=csv';
+            if (save) localStorage.setItem('savedSheetUrl', url);
             try {
                 const response = await fetch(url);
                 const data = await response.text();
                 const lines = data.split('\n');
                 allProducts = [];
-
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
-                    const cols = parseCSVLine(lines[i]);
-                    
+                    const cols = lines[i].split(',');
                     if (cols.length >= 3) {
-                        const nombre = cols[0] || '';
-                        const existencia = parseInt(cols[1]) || 0;
-                        const precio = parseFloat(cols[2]) || 0.00;
-                        const categoria = (cols[3] && cols[3] !== '') ? cols[3].toUpperCase() : 'GENERAL';
-                        
-                        const mostrarCol = cols[4] ? cols[4].trim().toUpperCase() : 'SI';
-                        const mostrar = (mostrarCol !== 'NO' && mostrarCol !== '0' && mostrarCol !== 'FALSO');
-                        
-                        if (nombre && nombre.toLowerCase() !== 'nombre_producto' && mostrar) {
-                            allProducts.push({ nombre, existencia, precio, categoria });
-                        }
+                        allProducts.push({ nombre: cols[0], existencia: parseInt(cols[1]), precio: parseFloat(cols[2]), categoria: (cols[3] || 'GENERAL').toUpperCase() });
                     }
                 }
-                
-                categoriaSeleccionada = 'TODOS';
                 generarBotonesCategorias();
                 filtrarProductos();
-                if (save) { alert('¡Inventario guardado y cargado con éxito!'); }
-            } catch (error) { 
-                alert('Error al cargar, verifica que tu hoja sea pública.'); 
-            }
+            } catch (e) { alert('Error al cargar.'); }
         }
 
         function generarBotonesCategorias() {
             const container = document.getElementById('categories-container');
-            const categoriasSet = new Set(allProducts.map(p => p.categoria));
-            
-            let html = `<button class="cat-btn ${categoriaSeleccionada === 'TODOS' ? 'active' : ''}" onclick="seleccionarCategoria('TODOS')">🌟 TODOS</button>`;
-            
-            categoriasSet.forEach(cat => {
-                if (cat) {
-                    html += `<button class="cat-btn ${categoriaSeleccionada === cat ? 'active' : ''}" onclick="seleccionarCategoria('${cat}')">${cat}</button>`;
-                }
-            });
+            const cats = new Set(allProducts.map(p => p.categoria));
+            let html = `<button class="cat-btn" onclick="seleccionarCategoria('TODOS')">🌟 TODOS</button>`;
+            cats.forEach(cat => html += `<button class="cat-btn" onclick="seleccionarCategoria('${cat}')">${cat}</button>`);
             container.innerHTML = html;
         }
 
-        function seleccionarCategoria(cat) {
-            categoriaSeleccionada = cat;
-            generarBotonesCategorias();
-            filtrarProductos();
-        }
+        function seleccionarCategoria(cat) { categoriaSeleccionada = cat; filtrarProductos(); }
 
         function filtrarProductos() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => {
-                const coincideTexto = p.nombre.toLowerCase().includes(texto);
-                const coincideCat = (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada);
-                return coincideTexto && coincideCat;
-            });
+            const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
             renderProducts(filtrados);
         }
 
         function renderProducts(products) {
             const container = document.getElementById('product-container');
-            container.innerHTML = '';
-            if (products.length === 0) {
-                container.innerHTML = '<div class="product-card"><h3>No hay productos</h3><p>Intenta con otra búsqueda o categoría.</p></div>';
-                return;
-            }
-            products.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div>
-                        <span class="category-tag">${p.categoria}</span>
-                        <h3>${p.nombre}</h3>
-                        <p class="stock">Disponibles: ${p.existencia}</p>
-                    </div>
-                    <div>
-                        <p class="price">$${p.precio.toFixed(2)}</p>
-                        <button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
-                    </div>`;
-                container.appendChild(card);
-            });
+            container.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <h3>${p.nombre}</h3>
+                    <p class="stock">Disp: ${p.existencia}</p>
+                    <p class="price">$${p.precio.toFixed(2)}</p>
+                    <button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
+                </div>`).join('');
         }
 
         function agregarAlCarrito(nombre, precio) {
-            const encontrado = carrito.find(item => item.nombre === nombre);
-            if (encontrado) {
-                encontrado.cantidad++;
-            } else {
-                carrito.push({ nombre, precio, cantidad: 1 });
-            }
+            const item = carrito.find(i => i.nombre === nombre);
+            if (item) item.cantidad++; else carrito.push({ nombre, precio, cantidad: 1 });
             actualizarCarritoBarra();
         }
 
-        function cambiarCantidad(nombre, delta) {
-            const encontrado = carrito.find(item => item.nombre === nombre);
-            if (encontrado) {
-                encontrado.cantidad += delta;
-                if (encontrado.cantidad <= 0) {
-                    carrito = carrito.filter(item => item.nombre !== nombre);
-                }
-            }
-            actualizarCarritoBarra();
+        function actualizarCarritoBarra() {
+            document.getElementById('cartCount').innerText = carrito.reduce((s, i) => s + i.cantidad, 0);
+            document.getElementById('cartTotal').innerText = carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2);
         }
 
         function toggleCartModal() {
@@ -261,47 +178,10 @@
             modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
         }
 
-        function actualizarCarritoBarra() {
-            const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-            const totalPrecio = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            document.getElementById('cartCount').innerText = totalItems;
-            document.getElementById('cartTotal').innerText = totalPrecio.toFixed(2);
-            
-            const listContainer = document.getElementById('cartItemsList');
-            if (carrito.length === 0) {
-                listContainer.innerHTML = '<p style="color:#666; text-align:center;">Tu carrito está vacío</p>';
-                return;
-            }
-            
-            let html = '';
-            carrito.forEach(item => {
-                html += `
-                    <div class="cart-item">
-                        <div>
-                            <strong>${item.nombre}</strong><br>
-                            <small>$${item.precio.toFixed(2)} c/u</small>
-                        </div>
-                        <div class="cart-controls">
-                            <button onclick="cambiarCantidad('${item.nombre}', -1)">-</button>
-                            <span>${item.cantidad}</span>
-                            <button onclick="cambiarCantidad('${item.nombre}', 1)">+</button>
-                        </div>
-                    </div>`;
-            });
-            listContainer.innerHTML = html;
-        }
-
         function enviarPedidoWhatsApp() {
-            if (carrito.length === 0) { alert('Carrito vacío.'); return; }
-            const telefono = "50374184366";
-            let detalle = "Hola, quiero hacer el siguiente pedido:\n\n";
-            carrito.forEach((item, index) => { 
-                const subtotal = item.precio * item.cantidad;
-                detalle += `${index + 1}. *${item.cantidad}x* ${item.nombre} - $${subtotal.toFixed(2)}\n`; 
-            });
-            const totalPrecio = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            detalle += `\n*Total: $${totalPrecio.toFixed(2)}*`;
-            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(detalle)}`, '_blank');
+            const tel = "50374184366";
+            let msg = "Pedido: " + carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(', ');
+            window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
         }
     </script>
 </body>
