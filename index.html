@@ -8,7 +8,7 @@
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; }
         body { font-family: 'Arial', sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 90px; }
         header { background-color: #6d4c41; color: white; padding: 20px; text-align: center; }
-        .logo-container { margin-bottom: 15px; cursor: pointer; }
+        .logo-container { margin-bottom: 15px; }
         .logo-container img { max-width: 220px; height: auto; display: block; margin: 0 auto; border-radius: 10px; background: white; padding: 5px; }
         .contact-btns { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
         .btn { padding: 10px 20px; border-radius: 20px; text-decoration: none; color: white; font-weight: bold; }
@@ -17,20 +17,26 @@
         .search-container { padding: 15px 20px 0 20px; text-align: center; }
         .search-container input { width: 100%; max-width: 400px; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; font-size: 16px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); background: white; }
 
-        /* Estilo para los botones de categoría horizontales */
         .categories-bar { display: flex; overflow-x: auto; gap: 10px; padding: 15px 20px; scrollbar-width: none; }
         .categories-bar::-webkit-scrollbar { display: none; }
         .cat-btn { background: #e0e0e0; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; color: #555; white-space: nowrap; cursor: pointer; transition: all 0.2s; font-size: 14px; }
         .cat-btn.active { background: #6d4c41; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; padding: 20px; }
-        .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        
+        .sale-badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 5px; }
         .product-card h3 { font-size: 16px; margin: 10px 0; color: #333; }
         .product-card p { font-size: 14px; color: #666; margin: 5px 0; }
         .product-card .category-tag { font-size: 11px; background: #eee; color: #555; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-bottom: 5px; }
-        .product-card .price { font-weight: bold; color: #e67e22; font-size: 18px; }
+        
+        .price-container { margin: 10px 0; }
+        .old-price { text-decoration: line-through; color: #999; font-size: 13px; margin-right: 5px; }
+        .price { font-weight: bold; color: #e74c3c; font-size: 18px; }
+        .normal-price { font-weight: bold; color: #e67e22; font-size: 18px; }
+
         .product-card .stock { font-size: 12px; color: #27ae60; margin-bottom: 5px; }
-        .product-card button { background-color: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .product-card button { background-color: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
         
         .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000; cursor: pointer; }
         .cart-bar button { background: #25d366; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
@@ -39,13 +45,11 @@
         .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
         .cart-controls { display: flex; align-items: center; gap: 8px; }
         .cart-controls button { background: #ddd; border: none; padding: 5px 10px; font-weight: bold; cursor: pointer; border-radius: 4px; }
-
-        #adminPanel { display: none; background: #fff; padding: 20px; margin: 20px; border: 2px dashed #6d4c41; border-radius: 10px; }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo-container" onclick="checkAdmin()">
+        <div class="logo-container">
             <img src="logo.png" alt="Logo Online Shop" onerror="this.style.display='none'">
         </div>
         <h1>Online Shop</h1>
@@ -53,13 +57,6 @@
             <a href="https://wa.me/50374184366" class="btn btn-whatsapp" target="_blank">WhatsApp: 74184366</a>
         </div>
     </header>
-    
-    <div id="adminPanel">
-        <h2>Panel de Inventario (Solo tú)</h2>
-        <p>Toca el logo nuevamente para ocultar.</p>
-        <input type="text" id="sheetUrl" placeholder="Pega aquí tu enlace de Google Sheets" style="width: 75%; padding: 10px;">
-        <button onclick="loadInventory(true)" style="padding: 10px 15px; background: #6d4c41; color: white; border: none; border-radius: 5px; cursor: pointer;">Guardar y Cargar</button>
-    </div>
 
     <!-- Buscador -->
     <div class="search-container">
@@ -73,7 +70,7 @@
 
     <div class="product-grid" id="product-container">
         <div class="product-card">
-            <h3>Cargando inventario...</h3>
+            <h3>Cargando productos...</h3>
             <p>Por favor espera un momento.</p>
         </div>
     </div>
@@ -91,43 +88,34 @@
     </div>
 
     <script>
+        // ----------------------------------------------------
+        // PEGA AQUÍ TU ENLACE DE GOOGLE SHEETS (DEBE TERMINAR EN format=csv)
+        // ----------------------------------------------------
+        const ENLACE_FIJO = "PEGA_AQUÍ_EL_ENLACE_DE_TU_GOOGLE_SHEETS";
+
         let allProducts = [];
         let carrito = [];
-        let clickCount = 0;
         let categoriaActual = "";
 
         window.onload = function() {
-            const savedUrl = localStorage.getItem('savedSheetUrl');
-            if (savedUrl) {
-                document.getElementById('sheetUrl').value = savedUrl;
-                loadInventory(false);
-            } else {
-                document.getElementById('product-container').innerHTML = `
-                    <div class="product-card">
-                        <h3>Bienvenido a Online Shop</h3>
-                        <p>Toca el logo 3 veces para configurar tu inventario por primera vez.</p>
-                    </div>`;
-            }
+            loadInventory();
         };
 
-        function checkAdmin() {
-            clickCount++;
-            if(clickCount === 3) {
-                const panel = document.getElementById('adminPanel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-                clickCount = 0;
+        async function loadInventory() {
+            let url = ENLACE_FIJO;
+            if (!url || url.includes("PEGA_AQUÍ")) {
+                document.getElementById('product-container').innerHTML = `
+                    <div class="product-card">
+                        <h3>Falta configurar el enlace</h3>
+                        <p>Por favor coloca tu enlace de Google Sheets en el código de GitHub.</p>
+                    </div>`;
+                return;
             }
-        }
 
-        async function loadInventory(save = false) {
-            let url = document.getElementById('sheetUrl').value;
-            if (!url) { alert('Ingresa un enlace.'); return; }
             if (!url.includes('format=csv')) {
                 url = url.split('/edit')[0] + '/export?format=csv';
             }
-            if (save) {
-                localStorage.setItem('savedSheetUrl', url);
-            }
+
             try {
                 const response = await fetch(url);
                 const data = await response.text();
@@ -138,18 +126,35 @@
                     if (cols.length >= 3) {
                         const nombre = cols[0] ? cols[0].trim().replace(/^"|"$/g, '') : '';
                         const existencia = cols[1] ? parseInt(cols[1].trim().replace(/^"|"$/g, '')) || 0 : 0;
-                        const precio = cols[2] ? parseFloat(cols[2].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
+                        const precioNormal = cols[2] ? parseFloat(cols[2].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
                         const categoria = cols[3] ? cols[3].trim().replace(/^"|"$/g, '') : 'General';
                         
+                        let precioOferta = cols[4] ? parseFloat(cols[4].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
+                        if (precioOferta <= 0 || precioOferta >= precioNormal) {
+                            precioOferta = precioNormal;
+                        }
+                        
                         if (nombre && nombre !== 'nombre_producto') {
-                            allProducts.push({ nombre, existencia, precio, categoria });
+                            allProducts.push({ 
+                                nombre, 
+                                existencia, 
+                                precioNormal, 
+                                precioOferta, 
+                                enOferta: precioOferta < precioNormal,
+                                categoria 
+                            });
                         }
                     }
                 }
                 crearBotonesCategorias();
                 filtrarProductos();
-                if (save) { alert('¡Inventario guardado y cargado con éxito!'); }
-            } catch (error) { alert('Error al cargar, verifica el enlace.'); }
+            } catch (error) {
+                document.getElementById('product-container').innerHTML = `
+                    <div class="product-card">
+                        <h3>Error al cargar</h3>
+                        <p>No se pudo conectar con Google Sheets. Verifica que tu archivo esté compartido públicamente.</p>
+                    </div>`;
+            }
         }
 
         function crearBotonesCategorias() {
@@ -181,15 +186,34 @@
             products.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                
+                let precioHTML = '';
+                let badgeHTML = '';
+
+                if (p.enOferta) {
+                    badgeHTML = `<span class="sale-badge">OFERTA</span>`;
+                    precioHTML = `
+                        <div class="price-container">
+                            <span class="old-price">$${p.precioNormal.toFixed(2)}</span>
+                            <span class="price">$${p.precioOferta.toFixed(2)}</span>
+                        </div>`;
+                } else {
+                    precioHTML = `
+                        <div class="price-container">
+                            <span class="normal-price">$${p.precioNormal.toFixed(2)}</span>
+                        </div>`;
+                }
+
                 card.innerHTML = `
+                    ${badgeHTML}
                     <div>
                         <span class="category-tag">${p.categoria}</span>
                         <h3>${p.nombre}</h3>
                         <p class="stock">Disponibles: ${p.existencia}</p>
                     </div>
                     <div>
-                        <p class="price">$${p.precio.toFixed(2)}</p>
-                        <button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
+                        ${precioHTML}
+                        <button onclick="agregarAlCarrito('${p.nombre}', ${p.enOferta ? p.precioOferta : p.precioNormal})">Agregar</button>
                     </div>`;
                 container.appendChild(card);
             });
