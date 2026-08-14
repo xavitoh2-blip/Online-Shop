@@ -25,14 +25,11 @@
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; padding: 20px; }
         .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         
-        .sale-badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; padding: 3px 6px; border-radius: 5px; }
         .product-card h3 { font-size: 16px; margin: 10px 0; color: #333; }
         .product-card p { font-size: 14px; color: #666; margin: 5px 0; }
         .product-card .category-tag { font-size: 11px; background: #eee; color: #555; padding: 3px 8px; border-radius: 10px; display: inline-block; margin-bottom: 5px; }
         
         .price-container { margin: 10px 0; }
-        .old-price { text-decoration: line-through; color: #999; font-size: 13px; margin-right: 5px; }
-        .price { font-weight: bold; color: #e74c3c; font-size: 18px; }
         .normal-price { font-weight: bold; color: #e67e22; font-size: 18px; }
 
         .product-card .stock { font-size: 12px; color: #27ae60; margin-bottom: 5px; }
@@ -58,12 +55,10 @@
         </div>
     </header>
 
-    <!-- Buscador -->
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="🔍 Buscar producto..." onkeyup="filtrarProductos()">
     </div>
 
-    <!-- Botones de Categorías Horizontal -->
     <div class="categories-bar" id="categoriesBar">
         <button class="cat-btn active" onclick="seleccionarCategoria('', this)">📂 Todos</button>
     </div>
@@ -88,10 +83,7 @@
     </div>
 
     <script>
-        // ----------------------------------------------------
-        // ENLACE FIJO DE TU GOOGLE SHEETS
-        // ----------------------------------------------------
-        const ENLACE_FIJO = "https://docs.google.com/spreadsheets/d/1us7u50DZep_-seFP_FxgoI4QyxFW8CU-/export?format=csv";
+        const ENLACE_FIJO = "https://docs.google.com/spreadsheets/d/1us7u50DZep_-seFP_FxgoI4QyxFW8CU-/export?format=csv&id=1us7u50DZep_-seFP_FxgoI4QyxFW8CU-&gid=0";
 
         let allProducts = [];
         let carrito = [];
@@ -103,44 +95,51 @@
 
         async function loadInventory() {
             let url = ENLACE_FIJO;
-            if (!url || url.includes("PEGA_AQUÍ")) {
-                document.getElementById('product-container').innerHTML = `
-                    <div class="product-card">
-                        <h3>Falta configurar el enlace</h3>
-                        <p>Por favor coloca tu enlace de Google Sheets en el código de GitHub.</p>
-                    </div>`;
-                return;
-            }
-
-            if (!url.includes('format=csv')) {
-                url = url.split('/edit')[0] + '/export?format=csv';
-            }
-
             try {
                 const response = await fetch(url);
                 const data = await response.text();
-                const rows = data.split('\n').map(row => row.split(','));
+                
+                if (data.trim().startsWith("<!DOCTYPE html>") || data.includes("<html")) {
+                    document.getElementById('product-container').innerHTML = `
+                        <div class="product-card" style="grid-column: 1/-1;">
+                            <h3>Error de acceso al documento</h3>
+                            <p>El archivo de Google Sheets debe estar configurado como <strong>"Cualquier usuario con el enlace puede ser lector"</strong>.</p>
+                        </div>`;
+                    return;
+                }
+
+                const rows = data.split('\n').map(row => {
+                    let arr = [];
+                    let inQuotes = false;
+                    let entry = '';
+                    for (let char of row) {
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            arr.push(entry);
+                            entry = '';
+                        } else {
+                            entry += char;
+                        }
+                    }
+                    arr.push(entry);
+                    return arr;
+                });
+
                 allProducts = [];
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i];
                     if (cols.length >= 3) {
-                        const nombre = cols[0] ? cols[0].trim().replace(/^"|"$/g, '') : '';
+                        const nombre = cols[0] ? cols[0].trim().replace(/^"|"$/g, '').replace(/[\r\n]+/gm, '') : '';
                         const existencia = cols[1] ? parseInt(cols[1].trim().replace(/^"|"$/g, '')) || 0 : 0;
-                        const precioNormal = cols[2] ? parseFloat(cols[2].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
-                        const categoria = cols[3] ? cols[3].trim().replace(/^"|"$/g, '') : 'General';
+                        const precio = cols[2] ? parseFloat(cols[2].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
+                        const categoria = cols[3] ? cols[3].trim().replace(/^"|"$/g, '').replace(/[\r\n]+/gm, '') : 'General';
                         
-                        let precioOferta = cols[4] ? parseFloat(cols[4].trim().replace(/^"|"$/g, '')) || 0.00 : 0.00;
-                        if (precioOferta <= 0 || precioOferta >= precioNormal) {
-                            precioOferta = precioNormal;
-                        }
-                        
-                        if (nombre && nombre !== 'nombre_producto') {
+                        if (nombre && nombre.toLowerCase() !== 'nombre_producto') {
                             allProducts.push({ 
                                 nombre, 
                                 existencia, 
-                                precioNormal, 
-                                precioOferta, 
-                                enOferta: precioOferta < precioNormal,
+                                precio, 
                                 categoria 
                             });
                         }
@@ -150,9 +149,9 @@
                 filtrarProductos();
             } catch (error) {
                 document.getElementById('product-container').innerHTML = `
-                    <div class="product-card">
+                    <div class="product-card" style="grid-column: 1/-1;">
                         <h3>Error al cargar</h3>
-                        <p>No se pudo conectar con Google Sheets. Verifica que tu archivo esté compartido públicamente.</p>
+                        <p>No se pudo conectar con Google Sheets.</p>
                     </div>`;
             }
         }
@@ -180,40 +179,24 @@
             const container = document.getElementById('product-container');
             container.innerHTML = '';
             if (products.length === 0) {
-                container.innerHTML = '<div class="product-card"><h3>No hay productos</h3><p>Verifica tu búsqueda o Google Sheets.</p></div>';
+                container.innerHTML = '<div class="product-card" style="grid-column: 1/-1;"><h3>No hay productos</h3><p>Verifica tu búsqueda o que tu Google Sheets tenga datos escritos.</p></div>';
                 return;
             }
             products.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 
-                let precioHTML = '';
-                let badgeHTML = '';
-
-                if (p.enOferta) {
-                    badgeHTML = `<span class="sale-badge">OFERTA</span>`;
-                    precioHTML = `
-                        <div class="price-container">
-                            <span class="old-price">$${p.precioNormal.toFixed(2)}</span>
-                            <span class="price">$${p.precioOferta.toFixed(2)}</span>
-                        </div>`;
-                } else {
-                    precioHTML = `
-                        <div class="price-container">
-                            <span class="normal-price">$${p.precioNormal.toFixed(2)}</span>
-                        </div>`;
-                }
-
                 card.innerHTML = `
-                    ${badgeHTML}
                     <div>
                         <span class="category-tag">${p.categoria}</span>
                         <h3>${p.nombre}</h3>
                         <p class="stock">Disponibles: ${p.existencia}</p>
                     </div>
                     <div>
-                        ${precioHTML}
-                        <button onclick="agregarAlCarrito('${p.nombre}', ${p.enOferta ? p.precioOferta : p.precioNormal})">Agregar</button>
+                        <div class="price-container">
+                            <span class="normal-price">$${p.precio.toFixed(2)}</span>
+                        </div>
+                        <button onclick="agregarAlCarrito('${p.nombre.replace(/'/g, "\\'")}', ${p.precio})">Agregar</button>
                     </div>`;
                 container.appendChild(card);
             });
@@ -221,13 +204,11 @@
 
         function filtrarProductos() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-
             const filtrados = allProducts.filter(p => {
                 const coincideTexto = p.nombre.toLowerCase().includes(texto);
                 const coincideCat = categoriaActual === "" || p.categoria === categoriaActual;
                 return coincideTexto && coincideCat;
             });
-
             renderProducts(filtrados);
         }
 
@@ -278,9 +259,9 @@
                             <small>$${item.precio.toFixed(2)} c/u</small>
                         </div>
                         <div class="cart-controls">
-                            <button onclick="cambiarCantidad('${item.nombre}', -1)">-</button>
+                            <button onclick="cambiarCantidad('${item.nombre.replace(/'/g, "\\'")}', -1)">-</button>
                             <span>${item.cantidad}</span>
-                            <button onclick="cambiarCantidad('${item.nombre}', 1)">+</button>
+                            <button onclick="cambiarCantidad('${item.nombre.replace(/'/g, "\\'")}', 1)">+</button>
                         </div>
                     </div>`;
             });
