@@ -7,9 +7,19 @@
     <style>
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; }
         body { font-family: 'Arial', sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 90px; }
-        header { background-color: #6d4c41; color: white; padding: 20px; text-align: center; }
+        
+        /* Cabecera con Imagen de Fondo */
+        header { 
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('fondo.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            color: white; 
+            padding: 25px 20px; 
+            text-align: center; 
+        }
+
         .logo-container { margin-bottom: 15px; cursor: pointer; }
-        .logo-container img { max-width: 220px; height: auto; display: block; margin: 0 auto; border-radius: 10px; background: white; padding: 5px; }
+        .logo-container img { max-width: 220px; height: auto; display: block; margin: 0 auto; border-radius: 10px; background: white; padding: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .contact-btns { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
         .btn { padding: 10px 20px; border-radius: 20px; text-decoration: none; color: white; font-weight: bold; }
         .btn-whatsapp { background-color: #25d366; }
@@ -154,7 +164,6 @@
                         const precio = parseFloat(cols[2]) || 0.00;
                         const categoria = (cols[3] && cols[3] !== '') ? cols[3].toUpperCase() : 'GENERAL';
                         
-                        // Columna E (índice 4): Mostrar ("SI" o "NO"). Si está vacía, se asume "SI" por defecto.
                         const mostrarCol = cols[4] ? cols[4].trim().toUpperCase() : 'SI';
                         const mostrar = (mostrarCol !== 'NO' && mostrarCol !== '0' && mostrarCol !== 'FALSO');
                         
