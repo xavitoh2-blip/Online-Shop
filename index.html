@@ -8,10 +8,10 @@
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; }
         body { font-family: 'Arial', sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 90px; }
         
-        /* Cabecera con Imagen de Fondo - URL corregida */
+        /* Cabecera con la imagen de fondo en minúsculas */
         header { 
-            background-color: #6d4c41; /* Color de respaldo café */
-            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://raw.githubusercontent.com/xavitoh2/xavitoh2-blip/main/Fondo.png'); 
+            background-color: #6d4c41; 
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://raw.githubusercontent.com/xavitoh2/xavitoh2-blip/main/fondo.png'); 
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat;
@@ -40,7 +40,6 @@
         .product-card p { font-size: 14px; color: #666; margin: 5px 0; }
         .product-card .price { font-weight: bold; color: #e67e22; font-size: 18px; }
         .product-card .stock { font-size: 12px; color: #27ae60; margin-bottom: 5px; }
-        .product-card .category-tag { font-size: 11px; background: #eee; color: #666; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 5px; }
         .product-card button { background-color: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         
         .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 1000; cursor: pointer; }
@@ -77,12 +76,17 @@
 
     <div class="categories-container" id="categories-container"></div>
 
-    <div class="product-grid" id="product-container"></div>
+    <div class="product-grid" id="product-container">
+        <div class="product-card">
+            <h3>Cargando inventario...</h3>
+            <p>Por favor espera un momento.</p>
+        </div>
+    </div>
 
     <div id="cartModal">
         <h3>Tu Carrito</h3>
         <div id="cartItemsList"></div>
-        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 15px; font-size: 16px; cursor: pointer;">Enviar por WhatsApp</button>
+        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 15px; font-size: 16px; cursor: pointer;">Enviar Pedido por WhatsApp</button>
     </div>
 
     <div class="cart-bar" onclick="toggleCartModal()">
@@ -127,7 +131,7 @@
                     if (!lines[i].trim()) continue;
                     const cols = lines[i].split(',');
                     if (cols.length >= 3) {
-                        allProducts.push({ nombre: cols[0], existencia: parseInt(cols[1]), precio: parseFloat(cols[2]), categoria: (cols[3] || 'GENERAL').toUpperCase() });
+                        allProducts.push({ nombre: cols[0], existencia: parseInt(cols[1]) || 0, precio: parseFloat(cols[2]) || 0, categoria: (cols[3] || 'GENERAL').toUpperCase() });
                     }
                 }
                 generarBotonesCategorias();
