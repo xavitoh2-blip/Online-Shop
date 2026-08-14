@@ -110,7 +110,6 @@
             }
         }
 
-        // Función avanzada para separar filas CSV respetando comillas
         function parseCSVLine(text) {
             let result = [];
             let current = '';
@@ -153,10 +152,13 @@
                         const nombre = cols[0] || '';
                         const existencia = parseInt(cols[1]) || 0;
                         const precio = parseFloat(cols[2]) || 0.00;
-                        // Toma la columna 4 (índice 3). Si está vacía, le asigna "GENERAL"
                         const categoria = (cols[3] && cols[3] !== '') ? cols[3].toUpperCase() : 'GENERAL';
                         
-                        if (nombre && nombre.toLowerCase() !== 'nombre_producto') {
+                        // Columna E (índice 4): Mostrar ("SI" o "NO"). Si está vacía, se asume "SI" por defecto.
+                        const mostrarCol = cols[4] ? cols[4].trim().toUpperCase() : 'SI';
+                        const mostrar = (mostrarCol !== 'NO' && mostrarCol !== '0' && mostrarCol !== 'FALSO');
+                        
+                        if (nombre && nombre.toLowerCase() !== 'nombre_producto' && mostrar) {
                             allProducts.push({ nombre, existencia, precio, categoria });
                         }
                     }
