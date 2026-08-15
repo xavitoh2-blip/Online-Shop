@@ -19,7 +19,7 @@
         }
 
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .menu-icon { font-size: 24px; cursor: pointer; }
+        .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; }
         .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; margin-left: 15px; }
 
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -39,10 +39,6 @@
         .cat-card img { width: 100%; height: 100%; object-fit: cover; }
         .cat-card span { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 13px; font-weight: bold; padding: 15px 8px 8px 8px; text-align: center; }
 
-        .categories-container { display: flex; overflow-x: auto; gap: 8px; padding: 10px 15px; scrollbar-width: none; }
-        .cat-btn { background: #fff; border: 1px solid #ccc; padding: 8px 16px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: 600; color: #555; font-size: 14px; }
-        .cat-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
         .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; }
         .product-card h3 { font-size: 15px; margin: 8px 0; color: #333; }
@@ -55,14 +51,25 @@
         .cart-wrapper { position: relative; display: inline-block; }
         .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
         
+        /* Modal del Carrito */
         #cartModal { display: none; position: fixed; bottom: 65px; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.2); z-index: 1001; max-height: 50vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--primary-color); border-radius: 10px; }
+        
+        /* Menú Desplegable Lateral/Superior (Categorías) */
+        #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .menu-content h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
+        .menu-cat-btn:hover { background: var(--primary-color); color: white; }
+        
+        /* Panel Admin oculto al fondo o discreto */
+        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--primary-color); border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
     <header>
         <div class="header-top">
-            <div class="menu-icon" onclick="checkAdmin()">☰</div>
+            <!-- Al hacer clic en las 3 líneas, abre el menú de categorías -->
+            <div class="menu-icon" onclick="toggleMenu()">☰</div>
             <div class="welcome-text">Online Shop</div>
         </div>
         <div class="search-box">
@@ -71,7 +78,7 @@
         </div>
     </header>
     
-    <!-- Carrusel de Promociones Automático -->
+    <!-- Carrusel de Promociones -->
     <div class="promo-slider">
         <div class="slides" id="sliderContainer">
             <div class="slide"><img src="promo1.png" alt="Promo 1" loading="lazy"></div>
@@ -86,21 +93,36 @@
         <div class="cat-card" onclick="seleccionarCategoria('ASADOS')"><img src="cat2.png" alt="Cat"><span>Asados</span></div>
     </div>
 
-    <div id="adminPanel">
-        <input type="text" id="sheetUrl" placeholder="Enlace Google Sheets" style="width: 70%;">
-        <button onclick="loadInventory(true)">Guardar</button>
-    </div>
-
-    <div class="categories-container" id="categories-container"></div>
-
+    <!-- Contenedor de Productos -->
     <div class="product-grid" id="product-container"></div>
 
+    <!-- Menú Desplegable (Categorías dentro de las 3 líneas) -->
+    <div id="menuModal" onclick="toggleMenu(event)">
+        <div class="menu-content" onclick="event.stopPropagation()">
+            <h3>Categorías</h3>
+            <div id="menuCategoriesList" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1;">
+                <!-- Se generan solas con JavaScript -->
+            </div>
+            <button onclick="toggleAdminPanel()" style="background: none; border: none; color: #888; margin-top: auto; cursor: pointer; text-align: left; padding: 5px;">⚙️ Configurar enlace</button>
+        </div>
+    </div>
+
+    <!-- Panel Admin para Google Sheets -->
+    <div id="adminPanel">
+        <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
+        <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
+        <br>
+        <button onclick="loadInventory(true)" style="background: var(--primary-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
+    </div>
+
+    <!-- Modal del Carrito -->
     <div id="cartModal">
         <h3>Tu Carrito</h3>
         <div id="cartItemsList"></div>
         <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 15px;">Pedir por WhatsApp</button>
     </div>
 
+    <!-- Barra de Navegación Inferior -->
     <nav class="bottom-nav">
         <a class="nav-item" onclick="seleccionarCategoria('TODOS')"><div>🏠</div>Inicio</a>
         <a class="nav-item" onclick="window.open('https://wa.me/50374184366', '_blank')"><div>💬</div>WhatsApp</a>
@@ -111,7 +133,7 @@
     </nav>
 
     <script>
-        // Función para mover el carrusel automáticamente cada 4 segundos
+        // Carrusel automático
         let currentIndex = 0;
         function changeSlide() {
             const slides = document.querySelectorAll('.slide');
@@ -122,17 +144,30 @@
         }
         setInterval(changeSlide, 4000);
 
-        let allProducts = [], carrito = [], clickCount = 0, categoriaSeleccionada = 'TODOS';
+        let allProducts = [], carrito = [], categoriaSeleccionada = 'TODOS';
 
         window.onload = () => loadInventory(false);
 
-        function checkAdmin() {
-            if(++clickCount === 3) { document.getElementById('adminPanel').style.display = 'block'; clickCount = 0; }
+        // Control del menú lateral de categorías
+        function toggleMenu(e) {
+            const modal = document.getElementById('menuModal');
+            if (!e || e.target === modal || e.currentTarget.classList.contains('menu-icon')) {
+                modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            }
+        }
+
+        function toggleAdminPanel() {
+            toggleMenu();
+            const panel = document.getElementById('adminPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
         async function loadInventory(save) {
             let url = localStorage.getItem('savedSheetUrl') || "https://docs.google.com/spreadsheets/d/1bXSibj51JO5ilbs_HRkUy96-gTXQmC2NxGsyPXNyDU8/edit?usp=sharing";
-            if (save) url = document.getElementById('sheetUrl').value;
+            if (save) {
+                url = document.getElementById('sheetUrl').value;
+                localStorage.setItem('savedSheetUrl', url);
+            }
             url = url.split('/edit')[0] + '/export?format=csv';
             try {
                 const res = await fetch(url);
@@ -142,19 +177,24 @@
                     const cols = line.split(',');
                     return { nombre: cols[0], existencia: cols[1], precio: parseFloat(cols[2]) || 0, categoria: (cols[3] || 'GENERAL').toUpperCase() };
                 });
-                generarBotonesCategorias();
+                generarMenuCategorias();
                 filtrarProductos();
             } catch(e) { console.error(e); }
         }
 
-        function generarBotonesCategorias() {
-            const container = document.getElementById('categories-container');
+        function generarMenuCategorias() {
+            const container = document.getElementById('menuCategoriesList');
             const cats = [...new Set(allProducts.map(p => p.categoria))];
-            container.innerHTML = `<button class="cat-btn" onclick="seleccionarCategoria('TODOS')">TODOS</button>` + 
-                cats.map(c => `<button class="cat-btn" onclick="seleccionarCategoria('${c}')">${c}</button>`).join('');
+            
+            container.innerHTML = `<button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>` + 
+                cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
         }
 
-        function seleccionarCategoria(cat) { categoriaSeleccionada = cat; filtrarProductos(); }
+        function seleccionarCategoria(cat) { 
+            categoriaSeleccionada = cat; 
+            filtrarProductos();
+            document.getElementById('menuModal').style.display = 'none'; // Cierra el menú al elegir
+        }
 
         function filtrarProductos() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
@@ -179,7 +219,10 @@
             badge.innerText = totalItems;
             badge.style.display = totalItems > 0 ? 'block' : 'none';
             
-            document.getElementById('cartItemsList').innerHTML = carrito.map(i => `<div>${i.cantidad}x ${i.nombre} - $${(i.precio * i.cantidad).toFixed(2)}</div>`).join('');
+            document.getElementById('cartItemsList').innerHTML = carrito.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                <span>${i.cantidad}x ${i.nombre}</span>
+                <span>$${(i.precio * i.cantidad).toFixed(2)}</span>
+            </div>`).join('');
         }
 
         function toggleCartModal() {
