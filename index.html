@@ -8,7 +8,6 @@
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; }
         
-        /* Cabecera cambiada al color del botón "Agregar" (#f39c12) */
         header { 
             background-color: var(--accent-color); 
             background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('fondo.png'); 
@@ -91,8 +90,15 @@
 
     <div class="section-title">Categorías destacadas</div>
     <div class="featured-categories">
-        <div class="cat-card" onclick="seleccionarCategoria('VERANO')"><img src="cat1.png" alt="Cat"><span>Verano</span></div>
-        <div class="cat-card" onclick="seleccionarCategoria('ASADOS')"><img src="cat2.png" alt="Cat"><span>Asados</span></div>
+        <!-- AQUÍ CAMBIAMOS 'VERANO' POR 'SELLO DE ORO' EN EL FILTRO Y EL TEXTO A 'Sabor Oriental' -->
+        <div class="cat-card" onclick="seleccionarCategoria('SELLO DE ORO')">
+            <img src="cat1.png" alt="Sabor Oriental">
+            <span>Sabor Oriental</span>
+        </div>
+        <div class="cat-card" onclick="seleccionarCategoria('ASADOS')">
+            <img src="cat2.png" alt="Asados">
+            <span>Asados</span>
+        </div>
     </div>
 
     <div class="product-grid" id="product-container"></div>
