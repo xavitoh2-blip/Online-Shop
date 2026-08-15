@@ -26,10 +26,10 @@
         .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; }
         .search-box span { color: var(--primary-color); font-weight: bold; }
 
-        .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; display: flex; align-items: center; }
-        .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; }
-        .slide { min-width: 100%; box-sizing: border-box; }
-        .slide img { width: 100%; height: 200px; object-fit: cover; }
+        .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
+        .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
+        .slide { min-width: 100%; height: 100%; box-sizing: border-box; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
 
         .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
 
@@ -71,10 +71,12 @@
         </div>
     </header>
     
+    <!-- Carrusel de Promociones Automático -->
     <div class="promo-slider">
         <div class="slides" id="sliderContainer">
-            <div class="slide"><img src="promo1.png" alt="Promo" loading="lazy"></div>
-            <div class="slide"><img src="promo2.png" alt="Promo" loading="lazy"></div>
+            <div class="slide"><img src="promo1.png" alt="Promo 1" loading="lazy"></div>
+            <div class="slide"><img src="promo2.png" alt="Promo 2" loading="lazy"></div>
+            <div class="slide"><img src="promo3.png" alt="Promo 3" loading="lazy"></div>
         </div>
     </div>
 
@@ -109,6 +111,17 @@
     </nav>
 
     <script>
+        // Función para mover el carrusel automáticamente cada 4 segundos
+        let currentIndex = 0;
+        function changeSlide() {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+            currentIndex = (currentIndex + 1) % slides.length;
+            const container = document.getElementById('sliderContainer');
+            container.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+        setInterval(changeSlide, 4000);
+
         let allProducts = [], carrito = [], clickCount = 0, categoriaSeleccionada = 'TODOS';
 
         window.onload = () => loadInventory(false);
