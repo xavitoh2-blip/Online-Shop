@@ -59,7 +59,7 @@
         .cart-wrapper { position: relative; display: inline-block; }
         .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
         
-        /* Ventana Flotante del Carrito (Pop-up vertical sobre el icono) */
+        /* Ventana Flotante del Carrito */
         #cartModal { 
             display: none; 
             position: fixed; 
@@ -78,7 +78,6 @@
             border: 1px solid #ddd;
         }
 
-        /* Flecha indicadora apuntando al icono de carrito */
         #cartModal::after {
             content: '';
             position: absolute;
@@ -159,7 +158,7 @@
         <button onclick="loadInventory(true)" style="background: var(--accent-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
     </div>
 
-    <!-- Ventana Flotante del Carrito (Oculta por defecto) -->
+    <!-- Ventana Flotante del Carrito -->
     <div id="cartModal" style="display: none;">
         <div class="cart-header-title">
             <span>🛍️ Tu Carrito</span>
@@ -201,7 +200,7 @@
             document.getElementById('cartModal').style.display = 'none';
         };
 
-        // Cerrar carrito al hacer clic fuera de él (Protegiendo clics internos)
+        // Cerrar carrito al hacer clic fuera (protegido para ignorar clics internos)
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('cartModal');
             const cartNav = document.querySelector('.nav-item:last-child');
@@ -312,7 +311,8 @@
             actualizarCarritoBarra();
         }
 
-        function cambiarCantidadCarrito(nombre, cambio) {
+        function cambiarCantidadCarrito(event, nombre, cambio) {
+            event.stopPropagation(); // Evita conflictos con eventos globales del documento
             const item = carrito.find(i => i.nombre === nombre);
             if (item) {
                 item.cantidad += cambio;
@@ -347,9 +347,9 @@
                         <span style="color: #666; font-size: 11px;">$${(i.precio * i.cantidad).toFixed(2)}</span>
                     </div>
                     <div class="cart-qty-controls">
-                        <button class="qty-btn" onclick="cambiarCantidadCarrito('${i.nombre}', -1)">-</button>
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button>
                         <span style="font-weight: bold; min-width: 18px; text-align: center; font-size: 13px;">${i.cantidad}</span>
-                        <button class="qty-btn" onclick="cambiarCantidadCarrito('${i.nombre}', 1)">+</button>
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button>
                     </div>
                 </div>
             `).join('');
