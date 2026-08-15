@@ -201,10 +201,11 @@
             document.getElementById('cartModal').style.display = 'none';
         };
 
-        // Cerrar carrito al hacer clic fuera de él
+        // Cerrar carrito al hacer clic fuera de él (Protegiendo clics internos)
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('cartModal');
             const cartNav = document.querySelector('.nav-item:last-child');
+            
             if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartNav.contains(event.target)) {
                 modal.style.display = 'none';
             }
