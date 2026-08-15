@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Shop</title>
     <style>
-        /* Cambiamos --bg-color al mismo tono del botón "Agregar" (#f39c12) */
-        :root { --accent-color: #f39c12; --bg-color: #f39c12; --primary-color: #6d4c41; }
+        :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; }
         
+        /* Cabecera cambiada al color del botón "Agregar" (#f39c12) */
         header { 
-            background-color: var(--primary-color); 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('fondo.png'); 
+            background-color: var(--accent-color); 
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('fondo.png'); 
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat;
@@ -25,14 +25,14 @@
 
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; }
-        .search-box span { color: var(--primary-color); font-weight: bold; }
+        .search-box span { color: var(--accent-color); font-weight: bold; }
 
         .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
         .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
         .slide { min-width: 100%; height: 100%; box-sizing: border-box; }
         .slide img { width: 100%; height: 100%; object-fit: cover; }
 
-        .section-title { font-size: 17px; font-weight: bold; color: white; margin: 20px 15px 10px 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
 
         .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
         .featured-categories::-webkit-scrollbar { display: none; }
@@ -54,7 +54,7 @@
         
         /* Modal Desplegable del Carrito */
         #cartModal { display: none; position: fixed; bottom: 65px; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.25); z-index: 1001; max-height: 60vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .cart-header-title { font-size: 18px; font-weight: bold; color: var(--primary-color); margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-header-title { font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px; font-size: 14px; color: #333; }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 15px; padding-top: 10px; border-top: 2px solid #ddd; color: #111; }
         .delete-btn { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
@@ -62,11 +62,11 @@
         /* Menú Desplegable Lateral de Categorías */
         #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
         .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .menu-content h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .menu-content h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
-        .menu-cat-btn:hover { background: var(--primary-color); color: white; }
+        .menu-cat-btn:hover { background: var(--accent-color); color: white; }
         
-        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--primary-color); border-radius: 10px; text-align: center; }
+        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--accent-color); border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -111,7 +111,7 @@
         <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
         <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
         <br>
-        <button onclick="loadInventory(true)" style="background: var(--primary-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
+        <button onclick="loadInventory(true)" style="background: var(--accent-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
     </div>
 
     <!-- Modal Desplegable del Carrito -->
