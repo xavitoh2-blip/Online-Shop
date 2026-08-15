@@ -168,7 +168,6 @@
         setInterval(changeSlide, 4000);
 
         let allProducts = [], carrito = [], categoriaSeleccionada = 'TODOS';
-        // Objeto para llevar el control temporal de cantidades en cada tarjeta de producto
         let tempCantidades = {};
 
         window.onload = () => loadInventory(false);
@@ -209,7 +208,6 @@
                     };
                 }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
                 
-                // Inicializar en 1 la cantidad visual de cada producto
                 allProducts.forEach(p => { tempCantidades[p.nombre] = 1; });
 
                 generarMenuCategorias();
@@ -255,7 +253,6 @@
             }).join('');
         }
 
-        // Modifica la cantidad visual en la tarjeta antes de agregar
         function cambiarTempCantidad(nombre, cambio) {
             if (!tempCantidades[nombre]) tempCantidades[nombre] = 1;
             tempCantidades[nombre] += cambio;
@@ -274,15 +271,10 @@
                 carrito.push({ nombre, precio, cantidad: cantidadAgregar });
             }
             
-            // Opcional: Reiniciar el contador de la tarjeta a 1 después de agregar
-            tempCantidades[nombre] = 1;
-            const spanQty = document.getElementById(`qty-text-${nombre}`);
-            if (spanQty) spanQty.innerText = 1;
-
+            // Ya NO se reinicia tempCantidades[nombre] aquí, por lo que la cantidad seleccionada se mantiene visible en la tarjeta.
             actualizarCarritoBarra();
         }
 
-        // Función para cambiar cantidad dentro del carrito (+ y - del modal flotante)
         function cambiarCantidadCarrito(nombre, cambio) {
             const item = carrito.find(i => i.nombre === nombre);
             if (item) {
@@ -342,6 +334,13 @@
             if (carrito.length === 0) return alert("Tu carrito está vacío");
             let msg = "Hola, quiero hacer el siguiente pedido:\n" + carrito.map(i => `• ${i.cantidad}x ${i.nombre} ($${(i.precio * i.cantidad).toFixed(2)})`).join('\n') + `\n\n*Total: $${carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2)}*`;
             window.open(`https://wa.me/50374184366?text=${encodeURIComponent(msg)}`);
+
+            // Reiniciar las cantidades en las tarjetas de la tienda a 1 una vez enviado el pedido
+            Object.keys(tempCantidades).forEach(k => { tempCantidades[k] = 1; });
+            carrito = [];
+            actualizarCarritoBarra();
+            filtrarProductos();
+            toggleCartModal();
         }
     </script>
 </body>
