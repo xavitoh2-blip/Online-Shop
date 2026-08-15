@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -60,7 +60,11 @@
         .cart-header-title { font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px; font-size: 14px; color: #333; }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 15px; padding-top: 10px; border-top: 2px solid #ddd; color: #111; }
-        .delete-btn { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        
+        /* Controles de más y menos dentro del carrito */
+        .cart-qty-controls { display: flex; align-items: center; gap: 8px; }
+        .qty-btn { background: #eee; border: none; width: 26px; height: 26px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; }
+        .qty-btn:hover { background: var(--accent-color); color: white; }
 
         /* Menú Desplegable Lateral de Categorías */
         #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
@@ -192,10 +196,10 @@
                         existencia: cols[1] || '', 
                         precio: parseFloat(cols[2]) || 0, 
                         categoria: (cols[3] || 'GENERAL').toUpperCase(),
-                        imagen: cols[4] ? cols[4].trim() : '', // Captura el enlace de la foto en la columna 5
-                        mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI' // Captura el estado de la columna mostrar
+                        imagen: cols[4] ? cols[4].trim() : '', 
+                        mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI'
                     };
-                }).filter(p => p.nombre !== '' && p.mostrar !== 'NO'); // Filtra para que no se muestren los productos con "NO"
+                }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
                 generarMenuCategorias();
                 filtrarProductos();
             } catch(e) { console.error(e); }
@@ -231,17 +235,21 @@
 
         function agregarAlCarrito(nombre, precio) {
             const item = carrito.find(i => i.nombre === nombre);
-            if (item) item.cantidad++; else carrito.push({ nombre, precio, cantidad: 1 });
+            if (item) {
+                item.cantidad++;
+            } else {
+                carrito.push({ nombre, precio, cantidad: 1 });
+            }
             actualizarCarritoBarra();
         }
 
-        function eliminarDelCarrito(nombre) {
-            const index = carrito.findIndex(i => i.nombre === nombre);
-            if (index !== -1) {
-                if (carrito[index].cantidad > 1) {
-                    carrito[index].cantidad--;
-                } else {
-                    carrito.splice(index, 1);
+        // Nueva función para cambiar la cantidad mediante los botones de + y -
+        function cambiarCantidad(nombre, cambio) {
+            const item = carrito.find(i => i.nombre === nombre);
+            if (item) {
+                item.cantidad += cambio;
+                if (item.cantidad <= 0) {
+                    carrito = carrito.filter(i => i.nombre !== nombre);
                 }
             }
             actualizarCarritoBarra();
@@ -267,10 +275,14 @@
             list.innerHTML = carrito.map(i => `
                 <div class="cart-item-row">
                     <div>
-                        <strong>${i.cantidad}x</strong> ${i.nombre} <br>
+                        <strong>${i.nombre}</strong><br>
                         <span style="color: #666; font-size: 12px;">$${(i.precio * i.cantidad).toFixed(2)}</span>
                     </div>
-                    <button class="delete-btn" onclick="eliminarDelCarrito('${i.nombre}')">🗑️ Quitar</button>
+                    <div class="cart-qty-controls">
+                        <button class="qty-btn" onclick="cambiarCantidad('${i.nombre}', -1)">-</button>
+                        <span style="font-weight: bold; min-width: 20px; text-align: center;">${i.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidad('${i.nombre}', 1)">+</button>
+                    </div>
                 </div>
             `).join('');
 
