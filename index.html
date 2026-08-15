@@ -40,18 +40,12 @@
         .cat-card span { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 13px; font-weight: bold; padding: 15px 8px 8px 8px; text-align: center; }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
-        
         .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
         .product-img-container { width: 100%; height: 130px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
         .product-img-container img { width: 100%; height: 100%; object-fit: cover; }
         .product-card h3 { font-size: 14px; margin: 6px 0; color: #333; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 16px; margin: 4px 0; }
-        
-        .card-actions { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
-        .quantity-control { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-        .quantity-control button { background-color: #f1f1f1; border: none; color: #333; font-size: 1rem; font-weight: bold; padding: 6px 12px; cursor: pointer; }
-        .quantity-display { font-size: 0.95rem; font-weight: bold; color: #333; }
-        .product-card button.btn-add { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .product-card button { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-weight: bold; }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { text-align: center; font-size: 11px; color: #666; cursor: pointer; flex-grow: 1; text-decoration: none; }
@@ -59,30 +53,27 @@
         .cart-wrapper { position: relative; display: inline-block; }
         .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
         
-        /* MENÚ LATERAL IZQUIERDO (Categorías) */
-        .side-modal-left { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: flex-start; }
-        .side-content-left { width: 80%; max-width: 320px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-
-        /* MENÚ LATERAL DERECHO (Carrito) */
-        .side-modal-right { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: flex-end; }
-        .side-content-right { width: 80%; max-width: 320px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: -2px 0 10px rgba(0,0,0,0.2); }
-
-        .side-content-left h3, .side-content-right h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
-        .menu-cat-btn:hover { background: var(--accent-color); color: white; }
-
+        /* Modal Desplegable del Carrito */
+        #cartModal { display: none; position: fixed; bottom: 65px; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.25); z-index: 1001; max-height: 60vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .cart-header-title { font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px; font-size: 14px; color: #333; }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 15px; padding-top: 10px; border-top: 2px solid #ddd; color: #111; }
         .delete-btn { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 
+        /* Menú Desplegable Lateral de Categorías */
+        #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .menu-content h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
+        .menu-cat-btn:hover { background: var(--accent-color); color: white; }
+        
         #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--accent-color); border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
     <header>
         <div class="header-top">
-            <div class="menu-icon" onclick="toggleModal('menuModal')">☰</div>
+            <div class="menu-icon" onclick="toggleMenu()">☰</div>
             <div class="welcome-text">Online Shop</div>
         </div>
         <div class="search-box">
@@ -113,27 +104,16 @@
 
     <div class="product-grid" id="product-container"></div>
 
-    <!-- Menú Lateral Izquierdo (Categorías) -->
-    <div id="menuModal" class="side-modal-left" onclick="toggleModal('menuModal')">
-        <div class="side-content-left" onclick="event.stopPropagation()">
-            <h3>Categorías <span onclick="toggleModal('menuModal')" style="cursor:pointer; color:#888; font-size:18px;">✕</span></h3>
+    <!-- Menú Desplegable de Categorías -->
+    <div id="menuModal" onclick="toggleMenu(event)">
+        <div class="menu-content" onclick="event.stopPropagation()">
+            <h3>Categorías</h3>
             <div id="menuCategoriesList" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1;"></div>
             <button onclick="toggleAdminPanel()" style="background: none; border: none; color: #888; margin-top: auto; cursor: pointer; text-align: left; padding: 5px;">⚙️ Configurar enlace</button>
         </div>
     </div>
 
-    <!-- Menú Lateral Derecho (Carrito) -->
-    <div id="cartModal" class="side-modal-right" onclick="toggleModal('cartModal')">
-        <div class="side-content-right" onclick="event.stopPropagation()">
-            <h3>🛍️ Tu Carrito <span onclick="toggleModal('cartModal')" style="cursor:pointer; color:#888; font-size:18px;">✕</span></h3>
-            <div id="cartItemsList" style="flex-grow: 1; overflow-y: auto;">
-                <p style="text-align: center; color: #888; font-size: 14px;">Tu carrito está vacío</p>
-            </div>
-            <div id="cartTotalSection"></div>
-            <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer;">Pedir por WhatsApp</button>
-        </div>
-    </div>
-
+    <!-- Panel Admin -->
     <div id="adminPanel">
         <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
         <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
@@ -141,10 +121,24 @@
         <button onclick="loadInventory(true)" style="background: var(--accent-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
     </div>
 
+    <!-- Modal Desplegable del Carrito -->
+    <div id="cartModal">
+        <div class="cart-header-title">
+            <span>🛍️ Tu Carrito</span>
+            <span onclick="toggleCartModal()" style="cursor: pointer; font-size: 18px; color: #888;">✕</span>
+        </div>
+        <div id="cartItemsList">
+            <p style="text-align: center; color: #888; font-size: 14px;">Tu carrito está vacío</p>
+        </div>
+        <div id="cartTotalSection"></div>
+        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 15px; font-size: 15px; cursor: pointer;">Pedir por WhatsApp</button>
+    </div>
+
+    <!-- Barra de Navegación Inferior -->
     <nav class="bottom-nav">
         <a class="nav-item" onclick="seleccionarCategoria('TODOS')"><div>🏠</div>Inicio</a>
         <a class="nav-item" onclick="window.open('https://wa.me/50374184366', '_blank')"><div>💬</div>WhatsApp</a>
-        <a class="nav-item" onclick="toggleModal('cartModal')">
+        <a class="nav-item" onclick="toggleCartModal()">
             <div class="cart-wrapper">🛒<span id="cartBadge" class="badge">0</span></div>
             Carrito
         </a>
@@ -165,13 +159,15 @@
 
         window.onload = () => loadInventory(false);
 
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        function toggleMenu(e) {
+            const modal = document.getElementById('menuModal');
+            if (!e || e.target === modal || e.currentTarget.classList.contains('menu-icon')) {
+                modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            }
         }
 
         function toggleAdminPanel() {
-            toggleModal('menuModal');
+            toggleMenu();
             const panel = document.getElementById('adminPanel');
             panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
@@ -189,14 +185,26 @@
                 const lines = data.split('\n');
                 allProducts = lines.slice(1).map(line => {
                     const cols = line.split(',');
+                    let valMostrar = cols[5] ? cols[5].trim().toUpperCase() : 'SI';
+                    
                     return { 
                         nombre: cols[0] || '', 
                         existencia: cols[1] || '', 
                         precio: parseFloat(cols[2]) || 0, 
                         categoria: (cols[3] || 'GENERAL').toUpperCase(),
-                        imagen: cols[4] ? cols[4].trim() : ''
+                        imagen: cols[4] ? cols[4].trim() : '',
+                        // Si la celda dice NO, S N, o FALSO, lo oculta. Si está vacío o dice SI/S/1, lo muestra por defecto.
+                        mostrar: valMostrar
                     };
+                }).filter(p => {
+                    if (p.nombre === '') return false;
+                    // Si la columna mostrar dice explícitamente "NO", "N" o "FALSE", se oculta
+                    if (p.mostrar === 'NO' || p.mostrar === 'N' || p.mostrar === 'FALSE' || p.mostrar === 'FALSY') {
+                        return false;
+                    }
+                    return true;
                 });
+                
                 generarMenuCategorias();
                 filtrarProductos();
             } catch(e) { console.error(e); }
@@ -219,62 +227,32 @@
             const texto = document.getElementById('searchInput').value.toLowerCase();
             const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
             
-            document.getElementById('product-container').innerHTML = filtrados.map((p, index) => `
+            document.getElementById('product-container').innerHTML = filtrados.map(p => `
                 <div class="product-card">
                     <div class="product-img-container">
-                        <img src="${p.imagen || ''}" alt="${p.nombre}" loading="lazy">
+                        <img src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
                     </div>
                     <h3>${p.nombre}</h3>
                     <p class="price">$${p.precio.toFixed(2)}</p>
-                    <div class="card-actions">
-                        <div class="quantity-control">
-                            <button onclick="cambiarCantidadCard(${index}, -1)">-</button>
-                            <span class="quantity-display" id="qty-${index}">1</span>
-                            <button onclick="cambiarCantidadCard(${index}, 1)">+</button>
-                        </div>
-                        <button class="btn-add" onclick="agregarAlCarritoDesdeCard('${p.nombre}', ${p.precio}, ${index})">Agregar</button>
-                    </div>
+                    <button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
                 </div>`).join('');
         }
 
-        function cambiarCantidadCard(index, cambio) {
-            const display = document.getElementById(`qty-${index}`);
-            let actual = parseInt(display.innerText);
-            let nuevo = actual + cambio;
-            if (nuevo >= 1) {
-                display.innerText = nuevo;
-            }
-        }
-
-        function agregarAlCarritoDesdeCard(nombre, precio, index) {
-            const display = document.getElementById(`qty-${index}`);
-            const cantidadSeleccionada = parseInt(display.innerText);
-
+        function agregarAlCarrito(nombre, precio) {
             const item = carrito.find(i => i.nombre === nombre);
-            if (item) {
-                item.cantidad += cantidadSeleccionada;
-            } else {
-                carrito.push({ nombre, precio, cantidad: cantidadSeleccionada });
-            }
-
-            display.innerText = 1;
+            if (item) item.cantidad++; else carrito.push({ nombre, precio, cantidad: 1 });
             actualizarCarritoBarra();
         }
 
-        function modificarCantidadCarrito(nombre, cambio) {
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) {
-                item.cantidad += cambio;
-                if (item.cantidad <= 0) {
-                    eliminarDelCarrito(nombre);
+        function eliminarDelCarrito(nombre) {
+            const index = carrito.findIndex(i => i.nombre === nombre);
+            if (index !== -1) {
+                if (carrito[index].cantidad > 1) {
+                    carrito[index].cantidad--;
                 } else {
-                    actualizarCarritoBarra();
+                    carrito.splice(index, 1);
                 }
             }
-        }
-
-        function eliminarDelCarrito(nombre) {
-            carrito = carrito.filter(i => i.nombre !== nombre);
             actualizarCarritoBarra();
         }
 
@@ -298,24 +276,24 @@
             list.innerHTML = carrito.map(i => `
                 <div class="cart-item-row">
                     <div>
-                        <strong>${i.nombre}</strong><br>
+                        <strong>${i.cantidad}x</strong> ${i.nombre} <br>
                         <span style="color: #666; font-size: 12px;">$${(i.precio * i.cantidad).toFixed(2)}</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <button onclick="modificarCantidadCarrito('${i.nombre}', -1)" style="border:none; background:#eee; padding: 2px 6px; border-radius:4px; cursor:pointer;">-</button>
-                        <span>${i.cantidad}</span>
-                        <button onclick="modificarCantidadCarrito('${i.nombre}', 1)" style="border:none; background:#eee; padding: 2px 6px; border-radius:4px; cursor:pointer;">+</button>
-                        <button class="delete-btn" onclick="eliminarDelCarrito('${i.nombre}')">🗑️</button>
-                    </div>
+                    <button class="delete-btn" onclick="eliminarDelCarrito('${i.nombre}')">🗑️ Quitar</button>
                 </div>
             `).join('');
 
             totalSection.innerHTML = `
                 <div class="cart-total-row">
-                    <span>Total:</span>
+                    <span>Total a Pagar:</span>
                     <span style="color: var(--accent-color);">$${totalPrice.toFixed(2)}</span>
                 </div>
             `;
+        }
+
+        function toggleCartModal() {
+            const modal = document.getElementById('cartModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
         }
 
         function enviarPedidoWhatsApp() {
