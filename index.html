@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Shop</title>
     <style>
-        :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
+        /* Cambiamos --bg-color al mismo tono del botón "Agregar" (#f39c12) */
+        :root { --accent-color: #f39c12; --bg-color: #f39c12; --primary-color: #6d4c41; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; }
         
         header { 
@@ -19,7 +20,7 @@
         }
 
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; }
+        .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: white; }
         .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; margin-left: 15px; }
 
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -31,7 +32,7 @@
         .slide { min-width: 100%; height: 100%; box-sizing: border-box; }
         .slide img { width: 100%; height: 100%; object-fit: cover; }
 
-        .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
+        .section-title { font-size: 17px; font-weight: bold; color: white; margin: 20px 15px 10px 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 
         .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
         .featured-categories::-webkit-scrollbar { display: none; }
@@ -43,7 +44,7 @@
         .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; }
         .product-card h3 { font-size: 15px; margin: 8px 0; color: #333; }
         .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 17px; }
-        .product-card button { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; }
+        .product-card button { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-weight: bold; }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { text-align: center; font-size: 11px; color: #666; cursor: pointer; flex-grow: 1; text-decoration: none; }
@@ -214,14 +215,13 @@
             actualizarCarritoBarra();
         }
 
-        // Función para eliminar o restar productos del carrito
         function eliminarDelCarrito(nombre) {
             const index = carrito.findIndex(i => i.nombre === nombre);
             if (index !== -1) {
                 if (carrito[index].cantidad > 1) {
-                    carrito[index].cantidad--; // Si hay más de 1, le resta uno
+                    carrito[index].cantidad--;
                 } else {
-                    carrito.splice(index, 1); // Si solo queda 1, lo borra por completo
+                    carrito.splice(index, 1);
                 }
             }
             actualizarCarritoBarra();
