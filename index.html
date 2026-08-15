@@ -51,24 +51,25 @@
         .cart-wrapper { position: relative; display: inline-block; }
         .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
         
-        /* Modal del Carrito */
-        #cartModal { display: none; position: fixed; bottom: 65px; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.2); z-index: 1001; max-height: 50vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        
-        /* Menú Desplegable Lateral/Superior (Categorías) */
+        /* Modal Desplegable del Carrito Mejorado */
+        #cartModal { display: none; position: fixed; bottom: 65px; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.25); z-index: 1001; max-height: 60vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .cart-header-title { font-size: 18px; font-weight: bold; color: var(--primary-color); margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px; font-size: 14px; color: #333; }
+        .cart-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 15px; padding-top: 10px; border-top: 2px solid #ddd; color: #111; }
+
+        /* Menú Desplegable Lateral de Categorías */
         #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
         .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
         .menu-content h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
         .menu-cat-btn:hover { background: var(--primary-color); color: white; }
         
-        /* Panel Admin oculto al fondo o discreto */
         #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--primary-color); border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
     <header>
         <div class="header-top">
-            <!-- Al hacer clic en las 3 líneas, abre el menú de categorías -->
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
             <div class="welcome-text">Online Shop</div>
         </div>
@@ -78,7 +79,6 @@
         </div>
     </header>
     
-    <!-- Carrusel de Promociones -->
     <div class="promo-slider">
         <div class="slides" id="sliderContainer">
             <div class="slide"><img src="promo1.png" alt="Promo 1" loading="lazy"></div>
@@ -93,21 +93,18 @@
         <div class="cat-card" onclick="seleccionarCategoria('ASADOS')"><img src="cat2.png" alt="Cat"><span>Asados</span></div>
     </div>
 
-    <!-- Contenedor de Productos -->
     <div class="product-grid" id="product-container"></div>
 
-    <!-- Menú Desplegable (Categorías dentro de las 3 líneas) -->
+    <!-- Menú Desplegable de Categorías -->
     <div id="menuModal" onclick="toggleMenu(event)">
         <div class="menu-content" onclick="event.stopPropagation()">
             <h3>Categorías</h3>
-            <div id="menuCategoriesList" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1;">
-                <!-- Se generan solas con JavaScript -->
-            </div>
+            <div id="menuCategoriesList" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1;"></div>
             <button onclick="toggleAdminPanel()" style="background: none; border: none; color: #888; margin-top: auto; cursor: pointer; text-align: left; padding: 5px;">⚙️ Configurar enlace</button>
         </div>
     </div>
 
-    <!-- Panel Admin para Google Sheets -->
+    <!-- Panel Admin -->
     <div id="adminPanel">
         <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
         <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
@@ -115,11 +112,17 @@
         <button onclick="loadInventory(true)" style="background: var(--primary-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
     </div>
 
-    <!-- Modal del Carrito -->
+    <!-- Modal Desplegable del Carrito -->
     <div id="cartModal">
-        <h3>Tu Carrito</h3>
-        <div id="cartItemsList"></div>
-        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; margin-top: 15px;">Pedir por WhatsApp</button>
+        <div class="cart-header-title">
+            <span>🛍️ Tu Carrito</span>
+            <span onclick="toggleCartModal()" style="cursor: pointer; font-size: 18px; color: #888;">✕</span>
+        </div>
+        <div id="cartItemsList">
+            <p style="text-align: center; color: #888; font-size: 14px;">Tu carrito está vacío</p>
+        </div>
+        <div id="cartTotalSection"></div>
+        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 15px; font-size: 15px; cursor: pointer;">Pedir por WhatsApp</button>
     </div>
 
     <!-- Barra de Navegación Inferior -->
@@ -133,7 +136,6 @@
     </nav>
 
     <script>
-        // Carrusel automático
         let currentIndex = 0;
         function changeSlide() {
             const slides = document.querySelectorAll('.slide');
@@ -148,7 +150,6 @@
 
         window.onload = () => loadInventory(false);
 
-        // Control del menú lateral de categorías
         function toggleMenu(e) {
             const modal = document.getElementById('menuModal');
             if (!e || e.target === modal || e.currentTarget.classList.contains('menu-icon')) {
@@ -185,7 +186,6 @@
         function generarMenuCategorias() {
             const container = document.getElementById('menuCategoriesList');
             const cats = [...new Set(allProducts.map(p => p.categoria))];
-            
             container.innerHTML = `<button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>` + 
                 cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
         }
@@ -193,7 +193,7 @@
         function seleccionarCategoria(cat) { 
             categoriaSeleccionada = cat; 
             filtrarProductos();
-            document.getElementById('menuModal').style.display = 'none'; // Cierra el menú al elegir
+            document.getElementById('menuModal').style.display = 'none';
         }
 
         function filtrarProductos() {
@@ -215,14 +215,38 @@
 
         function actualizarCarritoBarra() {
             const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
+            const totalPrice = carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0);
+            
             const badge = document.getElementById('cartBadge');
             badge.innerText = totalItems;
             badge.style.display = totalItems > 0 ? 'block' : 'none';
             
-            document.getElementById('cartItemsList').innerHTML = carrito.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                <span>${i.cantidad}x ${i.nombre}</span>
-                <span>$${(i.precio * i.cantidad).toFixed(2)}</span>
-            </div>`).join('');
+            const list = document.getElementById('cartItemsList');
+            const totalSection = document.getElementById('cartTotalSection');
+
+            if (carrito.length === 0) {
+                list.innerHTML = `<p style="text-align: center; color: #888; font-size: 14px;">Tu carrito está vacío</p>`;
+                totalSection.innerHTML = '';
+                return;
+            }
+
+            list.innerHTML = carrito.map(i => `
+                <div class="cart-item-row">
+                    <div>
+                        <strong>${i.cantidad}x</strong> ${i.nombre}
+                    </div>
+                    <div style="color: #666; font-weight: 500;">
+                        $${(i.precio * i.cantidad).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+
+            totalSection.innerHTML = `
+                <div class="cart-total-row">
+                    <span>Total a Pagar:</span>
+                    <span style="color: var(--accent-color);">$${totalPrice.toFixed(2)}</span>
+                </div>
+            `;
         }
 
         function toggleCartModal() {
@@ -231,7 +255,8 @@
         }
 
         function enviarPedidoWhatsApp() {
-            let msg = "Pedido: " + carrito.map(i => i.cantidad + "x " + i.nombre).join(', ');
+            if (carrito.length === 0) return alert("Tu carrito está vacío");
+            let msg = "Hola, quiero hacer el siguiente pedido:\n" + carrito.map(i => `• ${i.cantidad}x ${i.nombre} ($${(i.precio * i.cantidad).toFixed(2)})`).join('\n') + `\n\n*Total: $${carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2)}*`;
             window.open(`https://wa.me/50374184366?text=${encodeURIComponent(msg)}`);
         }
     </script>
