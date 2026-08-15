@@ -191,9 +191,10 @@
                         precio: parseFloat(cols[2]) || 0, 
                         categoria: (cols[3] || 'GENERAL').toUpperCase(),
                         imagen: cols[4] ? cols[4].trim() : '',
-                        mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI'
+                        mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI' // Captura la columna mostrar
                     };
-                }).filter(p => p.nombre !== '' && (p.mostrar === 'SI' || p.mostrar === 'S' || p.mostrar === '1' || p.mostrar === 'TRUE'));
+                }).filter(p => p.nombre !== '' && (p.mostrar === 'SI' || p.mostrar === 'S' || p.mostrar === '1' || p.mostrar === 'TRUE')); 
+                // SOLO carga los productos que estén marcados para mostrarse
                 
                 generarMenuCategorias();
                 filtrarProductos();
