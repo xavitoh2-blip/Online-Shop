@@ -68,13 +68,15 @@
         .sug-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #f9f9f9; flex-shrink: 0; }
         .sug-info { flex-grow: 1; text-align: left; }
         .sug-name { font-size: 13px; font-weight: 500; color: #333; margin: 0 0 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .sug-price { font-size: 14px; font-weight: bold; color: #27ae60; margin: 0; }
+        .sug-price { font-size: 14px; font-weight: bold; color: var(--accent-color); margin: 0; }
 
         .sug-actions { display: flex; align-items: center; gap: 8px; }
         .sug-qty-box { display: flex; align-items: center; background: #f1f1f1; border-radius: 6px; padding: 2px 6px; border: 1px solid #e2e2e2; }
         .sug-qty-btn { background: none; border: none; font-size: 15px; font-weight: bold; color: #007aff; cursor: pointer; padding: 0 6px; }
         .sug-qty-num { font-size: 13px; font-weight: bold; color: #333; min-width: 15px; text-align: center; }
-        .sug-add-btn { background: #27ae60; color: white; border: none; width: 34px; height: 34px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        
+        /* Botón del carrito en sugerencias alineado al color principal */
+        .sug-add-btn { background-color: var(--accent-color); color: white; border: none; width: 34px; height: 34px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
 
         .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
         .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
@@ -353,11 +355,9 @@
             const clearBtn = document.getElementById('clearSearchBtn');
             clearBtn.style.display = texto.length > 0 ? 'block' : 'none';
 
-            // Filtrar la grilla principal automáticamente
             paginaActual = 1;
             filtrarProductos();
 
-            // Gestionar Sugerencias Flotantes
             const suggestionsBox = document.getElementById('searchSuggestions');
             const suggestionsList = document.getElementById('suggestionsList');
 
@@ -366,7 +366,7 @@
                 return;
             }
 
-            const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5); // Mostrar máximo 5 sugerencias
+            const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5);
 
             if (filtrados.length === 0) {
                 suggestionsList.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px; padding: 15px; margin: 0;">No se encontraron productos</p>`;
