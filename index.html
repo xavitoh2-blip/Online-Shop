@@ -53,14 +53,14 @@
 
         .product-card button.add-btn { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
         
-        /* Estilos de Paginación */
-        .pagination-container { text-align: center; margin: 20px 15px 30px 15px; }
-        .pagination-info { font-size: 14px; color: #666; margin-bottom: 8px; text-align: left; padding-left: 5px; }
-        .pagination-controls { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .page-btn { background: white; border: none; padding: 10px 14px; font-size: 14px; color: #333; cursor: pointer; border-right: 1px solid #ddd; font-weight: 500; }
+        /* Estilos de Paginación exactos a la imagen de referencia */
+        .pagination-container { text-align: left; margin: 20px 15px 30px 15px; display: flex; flex-direction: column; align-items: flex-start; }
+        .pagination-info { font-size: 15px; color: #555; margin-bottom: 8px; font-weight: 500; }
+        .pagination-controls { display: inline-flex; border: 1px solid #dcdcdc; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .page-btn { background: white; border: none; padding: 10px 16px; font-size: 14px; color: #444; cursor: pointer; border-right: 1px solid #dcdcdc; font-weight: 400; }
         .page-btn:last-child { border-right: none; }
-        .page-btn:hover:not(:disabled) { background: #f1f1f1; }
-        .page-btn:disabled { color: #ccc; cursor: not-allowed; }
+        .page-btn:hover:not(:disabled) { background: #f8f8f8; }
+        .page-btn:disabled { color: #bbb; cursor: not-allowed; background: #fafafa; }
         .page-btn.active { background: var(--accent-color); color: white; font-weight: bold; }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
@@ -208,16 +208,14 @@
         let allProducts = [], carrito = [], categoriaSeleccionada = 'TODOS';
         let tempCantidades = {};
         
-        // Variables de Paginación
         let paginaActual = 1;
-        const productosPorPagina = 12; // Puedes cambiar cuántos productos mostrar por página aquí
+        const productosPorPagina = 12;
 
         window.onload = () => {
             loadInventory(false);
             document.getElementById('cartModal').style.display = 'none';
         };
 
-        // Cerrar carrito al hacer clic fuera (protegido para ignorar clics internos)
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('cartModal');
             const cartNav = document.querySelector('.nav-item:last-child');
@@ -279,13 +277,13 @@
 
         function seleccionarCategoria(cat) { 
             categoriaSeleccionada = cat; 
-            paginaActual = 1; // Reiniciar a página 1 al cambiar de categoría
+            paginaActual = 1;
             filtrarProductos();
             document.getElementById('menuModal').style.display = 'none';
         }
 
         function reiniciarPaginaYFiltrar() {
-            paginaActual = 1; // Reiniciar a página 1 al buscar
+            paginaActual = 1;
             filtrarProductos();
         }
 
@@ -293,7 +291,6 @@
             const texto = document.getElementById('searchInput').value.toLowerCase();
             const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
             
-            // Cálculo de Paginación
             const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
             if (paginaActual > totalPaginas) paginaActual = totalPaginas;
 
@@ -301,7 +298,6 @@
             const fin = inicio + productosPorPagina;
             const productosPaginaActual = filtrados.slice(inicio, fin);
 
-            // Renderizar productos de la página actual
             document.getElementById('product-container').innerHTML = productosPaginaActual.map(p => {
                 let qty = tempCantidades[p.nombre] || 1;
                 return `
@@ -322,19 +318,25 @@
                 </div>`;
             }).join('');
 
-            // Renderizar controles de paginación estilo la imagen
             renderizarPaginacion(totalPaginas);
         }
 
         function renderizarPaginacion(totalPaginas) {
             const container = document.getElementById('pagination-section');
             if (totalPaginas <= 1) {
-                container.innerHTML = ''; // Si solo hay 1 página, no se muestran los botones
+                container.innerHTML = '';
                 return;
             }
 
+            // Lógica para mostrar un rango dinámico de hasta 5 números de página (ej: 1 2 3 4 5)
+            let inicioPag = Math.max(1, paginaActual - 2);
+            let finPag = Math.min(totalPaginas, inicioPag + 4);
+            if (finPag - inicioPag < 4) {
+                inicioPag = Math.max(1, finPag - 4);
+            }
+
             let botonesNumeros = '';
-            for (let i = 1; i <= totalPaginas; i++) {
+            for (let i = inicioPag; i <= finPag; i++) {
                 let claseActiva = (i === paginaActual) ? 'active' : '';
                 botonesNumeros += `<button class="page-btn ${claseActiva}" onclick="cambiarPagina(${i})">${i}</button>`;
             }
@@ -354,7 +356,7 @@
         function cambiarPagina(nuevaPagina) {
             paginaActual = nuevaPagina;
             filtrarProductos();
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Sube arriba suavemente al cambiar de página
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function cambiarTempCantidad(nombre, cambio) {
