@@ -5,33 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Shop</title>
     <style>
-        :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
+        :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #2e7d32; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 40px; }
         
         header { 
-            background-color: var(--accent-color); 
-            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('fondo.png'); 
-            background-size: cover; 
-            background-position: center; 
-            background-repeat: no-repeat;
-            color: white; 
-            padding: 15px; 
+            background-color: white; 
+            color: #333; 
+            padding: 12px 15px; 
             position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #eaeaea;
         }
 
-        .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
-        .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: white; flex-shrink: 0; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--primary-color); flex-shrink: 0; }
         
         /* Título/Logo que funciona como Inicio */
-        .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; cursor: pointer; color: var(--primary-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Carrito en la parte superior */
-        .header-cart-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); padding: 6px 12px; border-radius: 20px; color: white; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: bold; flex-shrink: 0; }
-        .header-cart-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        /* Estilo exacto del carrito solicitado */
+        .header-cart-btn { 
+            background: transparent; 
+            border: none; 
+            padding: 5px 8px; 
+            color: var(--primary-color); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold; 
+            flex-shrink: 0; 
+        }
+        .header-cart-btn svg, .header-cart-icon { width: 24px; height: 24px; fill: currentColor; }
 
-        .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+        .search-container-wrapper { padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; }
+        .search-box { background: var(--bg-color); display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; position: relative; border: 1px solid #ddd; }
         .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; background: transparent; }
-        .search-box span { color: var(--accent-color); font-weight: bold; }
+        .search-box span { color: var(--primary-color); font-weight: bold; }
         .clear-search { cursor: pointer; color: #888; font-size: 16px; margin-right: 5px; display: none; }
 
         /* Ventana Flotante de Sugerencias de Búsqueda */
@@ -59,13 +70,13 @@
         .sug-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #f9f9f9; flex-shrink: 0; }
         .sug-info { flex-grow: 1; text-align: left; }
         .sug-name { font-size: 13px; font-weight: 500; color: #333; margin: 0 0 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .sug-price { font-size: 14px; font-weight: bold; color: var(--accent-color); margin: 0; }
+        .sug-price { font-size: 14px; font-weight: bold; color: var(--primary-color); margin: 0; }
         .sug-actions { display: flex; align-items: center; gap: 8px; }
         
         .sug-qty-box { display: flex; align-items: center; background: #f4f4f6; border-radius: 8px; padding: 2px 4px; }
         .sug-qty-btn { background: transparent; border: none; font-size: 15px; font-weight: 600; color: #222; cursor: pointer; padding: 4px 8px; }
         .sug-qty-num { font-size: 14px; font-weight: bold; color: #222; min-width: 18px; text-align: center; }
-        .sug-add-btn { background-color: var(--accent-color); color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .sug-add-btn { background-color: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
         .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
@@ -87,13 +98,13 @@
         .product-img-container { width: 100%; height: 120px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
         .product-img-container img { width: 100%; height: 100%; object-fit: cover; }
         .product-card h3 { font-size: 13px; margin: 6px 0; color: #333; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 15px; margin: 4px 0; }
+        .product-card .price { font-weight: bold; color: var(--primary-color); font-size: 15px; margin: 4px 0; }
         
         .product-qty-box { display: flex; align-items: center; justify-content: space-between; background: #f4f4f6; border-radius: 8px; padding: 4px 6px; margin: 8px 0; }
         .product-qty-btn { background: transparent; border: none; font-size: 15px; font-weight: 600; color: #222; cursor: pointer; padding: 2px 8px; }
         .product-qty-num { font-size: 13px; font-weight: bold; color: #222; }
 
-        .product-card button.add-btn { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
+        .product-card button.add-btn { background-color: var(--primary-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
         
         /* Paginación */
         .pagination-container { text-align: center; margin: 20px 15px 30px 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -103,13 +114,13 @@
         .page-btn:last-child { border-right: none; }
         .page-btn:hover:not(:disabled) { background: #f1f1f1; }
         .page-btn:disabled { color: #ccc; cursor: not-allowed; }
-        .page-btn.active { background: #8bc34a; color: white; font-weight: bold; }
+        .page-btn.active { background: var(--primary-color); color: white; font-weight: bold; }
 
         /* Botón Flotante de WhatsApp */
         .whatsapp-float { position: fixed; bottom: 20px; right: 20px; background-color: #25d366; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; text-decoration: none; transition: transform 0.2s; }
         .whatsapp-float:hover { transform: scale(1.1); }
 
-        /* Ventana Flotante del Carrito (ajustada arriba a la derecha) */
+        /* Ventana Flotante del Carrito */
         #cartModal { 
             display: none; 
             position: fixed; 
@@ -128,23 +139,23 @@
             border: 1px solid #ddd;
         }
 
-        .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-header-title { font-size: 16px; font-weight: bold; color: var(--primary-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         #cartItemsList { overflow-y: auto; max-height: 35vh; flex-grow: 1; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f1f1; padding-bottom: 6px; font-size: 13px; color: #333; }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; margin-top: 10px; padding-top: 8px; border-top: 2px solid #ddd; color: #111; }
         
         .cart-qty-controls { display: flex; align-items: center; gap: 6px; background: #f4f4f6; border-radius: 8px; padding: 2px 4px; }
         .qty-btn { background: transparent; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #222; }
-        .qty-btn:hover { background: var(--accent-color); color: white; }
+        .qty-btn:hover { background: var(--primary-color); color: white; }
 
         /* Menú Desplegable Lateral de Categorías */
         #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
         .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .menu-content h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .menu-content h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
-        .menu-cat-btn:hover { background: var(--accent-color); color: white; }
+        .menu-cat-btn:hover { background: var(--primary-color); color: white; }
         
-        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--accent-color); border-radius: 10px; text-align: center; }
+        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--primary-color); border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -152,10 +163,14 @@
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
             <div class="welcome-text" onclick="irInicio()">Online Shop</div>
-            <div class="header-cart-btn" onclick="toggleCartModal()">
-                🛒 <span id="headerCartTotal">$0.00</span>
-            </div>
+            <button class="header-cart-btn" onclick="toggleCartModal()">
+                <svg viewBox="0 0 24 24" style="width: 22px; height: 22px;"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                <span id="headerCartTotal">$0.00</span>
+            </button>
         </div>
+    </header>
+
+    <div class="search-container-wrapper">
         <div class="search-box">
             <span>🔍</span>
             <input type="text" id="searchInput" placeholder="¿Qué buscas?" onkeyup="manejarBusquedaInput()" autocomplete="off">
@@ -167,7 +182,7 @@
                 <div id="suggestionsList"></div>
             </div>
         </div>
-    </header>
+    </div>
     
     <div class="promo-slider">
         <div class="slides" id="sliderContainer">
@@ -213,7 +228,7 @@
         <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
         <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
         <br>
-        <button onclick="loadInventory(true)" style="background: var(--accent-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
+        <button onclick="loadInventory(true)" style="background: var(--primary-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
     </div>
 
     <!-- Ventana Flotante del Carrito -->
@@ -539,7 +554,7 @@
             totalSection.innerHTML = `
                 <div class="cart-total-row">
                     <span>Total:</span>
-                    <span style="color: var(--accent-color);">$${totalPrice.toFixed(2)}</span>
+                    <span style="color: var(--primary-color);">$${totalPrice.toFixed(2)}</span>
                 </div>
             `;
         }
