@@ -16,15 +16,67 @@
             background-repeat: no-repeat;
             color: white; 
             padding: 20px 15px; 
+            position: relative;
         }
 
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: white; }
         .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; margin-left: 15px; }
 
-        .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; }
+        .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+        .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; background: transparent; }
         .search-box span { color: var(--accent-color); font-weight: bold; }
+        .clear-search { cursor: pointer; color: #888; font-size: 16px; margin-right: 5px; display: none; }
+
+        /* Contenedor Flotante de Sugerencias de Búsqueda */
+        #searchSuggestions {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 3000;
+            max-height: 65vh;
+            overflow-y: auto;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+        }
+
+        .suggestions-header {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            gap: 10px;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+
+        .sug-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #f9f9f9; flex-shrink: 0; }
+        .sug-info { flex-grow: 1; text-align: left; }
+        .sug-name { font-size: 13px; font-weight: 500; color: #333; margin: 0 0 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .sug-price { font-size: 14px; font-weight: bold; color: var(--accent-color); margin: 0; }
+
+        .sug-actions { display: flex; align-items: center; gap: 8px; }
+        
+        .sug-qty-box { display: flex; align-items: center; background: #f4f4f6; border-radius: 8px; padding: 2px 4px; border: none; }
+        .sug-qty-btn { background: transparent; border: none; font-size: 15px; font-weight: 600; color: #222; cursor: pointer; padding: 4px 8px; }
+        .sug-qty-num { font-size: 14px; font-weight: bold; color: #222; min-width: 18px; text-align: center; }
+        
+        .sug-add-btn { background-color: var(--accent-color); color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
         .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
@@ -35,33 +87,34 @@
 
         .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
         .featured-categories::-webkit-scrollbar { display: none; }
-        .cat-card { min-width: 130px; height: 160px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-shrink: 0; background: #ddd; }
-        .cat-card img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-card span { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 13px; font-weight: bold; padding: 15px 8px 8px 8px; text-align: center; }
-
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
         
-        .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
-        .product-img-container { width: 100%; height: 130px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
+        .cat-card { min-width: 130px; width: 130px; height: 160px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-shrink: 0; background: #ddd; }
+        .cat-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .cat-card span { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 13px; font-weight: bold; padding: 15px 8px 8px 8px; text-align: center; z-index: 2; box-sizing: border-box; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
+        
+        .product-card { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        .product-img-container { width: 100%; height: 120px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
         .product-img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .product-card h3 { font-size: 14px; margin: 6px 0; color: #333; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 16px; margin: 4px 0; }
+        .product-card h3 { font-size: 13px; margin: 6px 0; color: #333; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 15px; margin: 4px 0; }
         
-        .product-qty-box { display: flex; align-items: center; justify-content: space-between; background: #f1f1f1; border-radius: 8px; padding: 4px 8px; margin: 8px 0; border: 1px solid #e2e2e2; }
-        .product-qty-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #e67e22; cursor: pointer; padding: 0 8px; }
-        .product-qty-num { font-size: 15px; font-weight: bold; color: #333; }
+        .product-qty-box { display: flex; align-items: center; justify-content: space-between; background: #f4f4f6; border-radius: 8px; padding: 4px 6px; margin: 8px 0; border: none; }
+        .product-qty-btn { background: transparent; border: none; font-size: 15px; font-weight: 600; color: #222; cursor: pointer; padding: 2px 8px; }
+        .product-qty-num { font-size: 13px; font-weight: bold; color: #222; }
 
-        .product-card button.add-btn { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .product-card button.add-btn { background-color: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
         
-        /* Estilos de Paginación */
-        .pagination-container { text-align: center; margin: 20px 15px 30px 15px; }
-        .pagination-info { font-size: 14px; color: #666; margin-bottom: 8px; text-align: left; padding-left: 5px; }
-        .pagination-controls { display: inline-flex; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .page-btn { background: white; border: none; padding: 10px 14px; font-size: 14px; color: #333; cursor: pointer; border-right: 1px solid #ddd; font-weight: 500; }
+        /* Estilos de Paginación idénticos al modelo solicitado */
+        .pagination-container { text-align: center; margin: 20px 15px 30px 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .pagination-info { font-size: 14px; color: #666; font-weight: 500; }
+        .pagination-controls { display: inline-flex; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); max-width: 100%; overflow-x: auto; }
+        .page-btn { background: white; border: none; padding: 10px 12px; font-size: 13px; color: #555; cursor: pointer; border-right: 1px solid #ddd; font-weight: 500; white-space: nowrap; }
         .page-btn:last-child { border-right: none; }
         .page-btn:hover:not(:disabled) { background: #f1f1f1; }
         .page-btn:disabled { color: #ccc; cursor: not-allowed; }
-        .page-btn.active { background: var(--accent-color); color: white; font-weight: bold; }
+        .page-btn.active { background: #8bc34a; color: white; font-weight: bold; } /* Color verde similar a la referencia */
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { text-align: center; font-size: 11px; color: #666; cursor: pointer; flex-grow: 1; text-decoration: none; }
@@ -103,8 +156,8 @@
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f1f1; padding-bottom: 6px; font-size: 13px; color: #333; }
         .cart-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; margin-top: 10px; padding-top: 8px; border-top: 2px solid #ddd; color: #111; }
         
-        .cart-qty-controls { display: flex; align-items: center; gap: 6px; }
-        .qty-btn { background: #eee; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #333; }
+        .cart-qty-controls { display: flex; align-items: center; gap: 6px; background: #f4f4f6; border-radius: 8px; padding: 2px 4px; }
+        .qty-btn { background: transparent; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #222; }
         .qty-btn:hover { background: var(--accent-color); color: white; }
 
         /* Menú Desplegable Lateral de Categorías */
@@ -125,7 +178,14 @@
         </div>
         <div class="search-box">
             <span>🔍</span>
-            <input type="text" id="searchInput" placeholder="¿Qué buscas?" onkeyup="reiniciarPaginaYFiltrar()">
+            <input type="text" id="searchInput" placeholder="¿Qué buscas?" onkeyup="manejarBusquedaInput()" autocomplete="off">
+            <span class="clear-search" id="clearSearchBtn" onclick="limpiarBusqueda()">✕</span>
+            
+            <!-- Ventana Flotante de Sugerencias de Búsqueda -->
+            <div id="searchSuggestions">
+                <div class="suggestions-header">Sugerencias</div>
+                <div id="suggestionsList"></div>
+            </div>
         </div>
     </header>
     
@@ -206,7 +266,7 @@
         setInterval(changeSlide, 4000);
 
         let allProducts = [], carrito = [], categoriaSeleccionada = 'TODOS';
-        let tempCantidades = {};
+        let tempCantidades = {}, tempCantidadesSugerencias = {};
         
         let paginaActual = 1;
         const productosPorPagina = 12;
@@ -216,12 +276,18 @@
             document.getElementById('cartModal').style.display = 'none';
         };
 
+        // Cerrar modales al hacer clic fuera
         document.addEventListener('click', function(event) {
-            const modal = document.getElementById('cartModal');
+            const cartModal = document.getElementById('cartModal');
             const cartNav = document.querySelector('.nav-item:last-child');
-            
-            if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartNav.contains(event.target)) {
-                modal.style.display = 'none';
+            if (cartModal.style.display === 'flex' && !cartModal.contains(event.target) && !cartNav.contains(event.target)) {
+                cartModal.style.display = 'none';
+            }
+
+            const searchBox = document.querySelector('.search-box');
+            const suggestionsBox = document.getElementById('searchSuggestions');
+            if (!searchBox.contains(event.target)) {
+                suggestionsBox.style.display = 'none';
             }
         });
 
@@ -261,7 +327,10 @@
                     };
                 }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
                 
-                allProducts.forEach(p => { tempCantidades[p.nombre] = 1; });
+                allProducts.forEach(p => { 
+                    tempCantidades[p.nombre] = 1; 
+                    tempCantidadesSugerencias[p.nombre] = 1;
+                });
 
                 generarMenuCategorias();
                 filtrarProductos();
@@ -277,14 +346,82 @@
 
         function seleccionarCategoria(cat) { 
             categoriaSeleccionada = cat; 
-            paginaActual = 1;
+            paginaActual = 1; 
             filtrarProductos();
             document.getElementById('menuModal').style.display = 'none';
         }
 
-        function reiniciarPaginaYFiltrar() {
+        function manejarBusquedaInput() {
+            const texto = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearSearchBtn');
+            clearBtn.style.display = texto.length > 0 ? 'block' : 'none';
+
             paginaActual = 1;
             filtrarProductos();
+
+            const suggestionsBox = document.getElementById('searchSuggestions');
+            const suggestionsList = document.getElementById('suggestionsList');
+
+            if (texto.trim() === '') {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5);
+
+            if (filtrados.length === 0) {
+                suggestionsList.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px; padding: 15px; margin: 0;">No se encontraron productos</p>`;
+            } else {
+                suggestionsList.innerHTML = filtrados.map(p => {
+                    let qty = tempCantidadesSugerencias[p.nombre] || 1;
+                    return `
+                    <div class="suggestion-item">
+                        <img src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" class="sug-img" loading="lazy">
+                        <div class="sug-info">
+                            <p class="sug-name">${p.nombre}</p>
+                            <p class="sug-price">$${p.precio.toFixed(2)}</p>
+                        </div>
+                        <div class="sug-actions">
+                            <div class="sug-qty-box">
+                                <button class="sug-qty-btn" onclick="cambiarTempCantidadSugerencia('${p.nombre}', -1)">-</button>
+                                <span class="sug-qty-num" id="sug-qty-${p.nombre}">${qty}</span>
+                                <button class="sug-qty-btn" onclick="cambiarTempCantidadSugerencia('${p.nombre}', 1)">+</button>
+                            </div>
+                            <button class="sug-add-btn" onclick="agregarDesdeSugerencia('${p.nombre}', ${p.precio})">🛒</button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+            suggestionsBox.style.display = 'block';
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            document.getElementById('searchSuggestions').style.display = 'none';
+            paginaActual = 1;
+            filtrarProductos();
+        }
+
+        function cambiarTempCantidadSugerencia(nombre, cambio) {
+            if (!tempCantidadesSugerencias[nombre]) tempCantidadesSugerencias[nombre] = 1;
+            tempCantidadesSugerencias[nombre] += cambio;
+            if (tempCantidadesSugerencias[nombre] < 1) tempCantidadesSugerencias[nombre] = 1;
+            
+            const spanQty = document.getElementById(`sug-qty-${nombre}`);
+            if (spanQty) spanQty.innerText = tempCantidadesSugerencias[nombre];
+        }
+
+        function agregarDesdeSugerencia(nombre, precio) {
+            const cantidadAgregar = tempCantidadesSugerencias[nombre] || 1;
+            const item = carrito.find(i => i.nombre === nombre);
+            if (item) {
+                item.cantidad += cantidadAgregar;
+            } else {
+                carrito.push({ nombre, precio, cantidad: cantidadAgregar });
+            }
+            actualizarCarritoBarra();
+            document.getElementById('searchSuggestions').style.display = 'none';
         }
 
         function filtrarProductos() {
@@ -324,12 +461,19 @@
         function renderizarPaginacion(totalPaginas) {
             const container = document.getElementById('pagination-section');
             if (totalPaginas <= 1) {
-                container.innerHTML = '';
+                container.innerHTML = ''; 
                 return;
             }
 
+            // Ventana deslizante de máximo 5 páginas numéricas
+            let inicioPag = Math.max(1, paginaActual - 2);
+            let finPag = Math.min(totalPaginas, inicioPag + 4);
+            if (finPag - inicioPag < 4) {
+                inicioPag = Math.max(1, finPag - 4);
+            }
+
             let botonesNumeros = '';
-            for (let i = 1; i <= totalPaginas; i++) {
+            for (let i = inicioPag; i <= finPag; i++) {
                 let claseActiva = (i === paginaActual) ? 'active' : '';
                 botonesNumeros += `<button class="page-btn ${claseActiva}" onclick="cambiarPagina(${i})">${i}</button>`;
             }
@@ -434,6 +578,7 @@
             window.open(`https://wa.me/50374184366?text=${encodeURIComponent(msg)}`);
 
             Object.keys(tempCantidades).forEach(k => { tempCantidades[k] = 1; });
+            Object.keys(tempCantidadesSugerencias).forEach(k => { tempCantidadesSugerencias[k] = 1; });
             carrito = [];
             actualizarCarritoBarra();
             filtrarProductos();
