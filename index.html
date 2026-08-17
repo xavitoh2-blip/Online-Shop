@@ -19,7 +19,7 @@
         }
 
         body { 
-            padding-top: 70px; /* Espacio para que la barra fija no tape el contenido */
+            padding-top: 70px; 
             padding-bottom: 40px; 
             -webkit-text-size-adjust: 100%; 
         }
@@ -31,7 +31,6 @@
             overflow: hidden;
         }
         
-        /* Barra superior fija (Menú, Título y Carrito) */
         header { 
             background-color: #ffffff; 
             color: var(--accent-color); 
@@ -57,7 +56,6 @@
             color: var(--accent-color);
         }
 
-        /* Carrito vectorial minimalista */
         .header-cart-btn {
             background: transparent;
             padding: 0;
@@ -81,12 +79,11 @@
         }
         .header-cart-btn span { font-size: 18px; color: var(--accent-color); }
 
-        /* Contenedor del buscador con animación para ocultarse al hacer scroll */
         .search-bar-wrapper {
             background-color: #ffffff;
             padding: 10px 15px 12px 15px;
             position: fixed;
-            top: 65px; /* Justo debajo de la barra fija */
+            top: 65px; 
             left: 0;
             width: 100%;
             z-index: 1900;
@@ -230,7 +227,6 @@
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
             <div class="welcome-text" onclick="seleccionarCategoria('TODOS')">Online Shop</div>
             
-            <!-- Carrito con ícono vectorial minimalista -->
             <button class="header-cart-btn" onclick="toggleCartModal()">
                 <svg viewBox="0 0 24 24">
                     <circle cx="9" cy="21" r="1"></circle>
@@ -242,7 +238,6 @@
         </div>
     </header>
 
-    <!-- Buscador separado para controlar su visibilidad con el scroll -->
     <div class="search-bar-wrapper" id="searchBarWrapper">
         <div class="search-container">
             <div class="search-box">
@@ -310,18 +305,14 @@
     <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
 
     <script>
-        // Control de scroll para ocultar/mostrar el buscador
         let lastScrollTop = 0;
         const searchBarWrapper = document.getElementById('searchBarWrapper');
 
         window.addEventListener('scroll', function() {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
             if (scrollTop > lastScrollTop && scrollTop > 50) {
-                // Scroll hacia abajo -> Ocultar buscador
                 searchBarWrapper.classList.add('hidden');
             } else {
-                // Scroll hacia arriba -> Mostrar buscador
                 searchBarWrapper.classList.remove('hidden');
             }
             lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
@@ -376,7 +367,16 @@
                 const lines = data.split('\n');
                 allProducts = lines.slice(1).map(line => {
                     const cols = line.split(',');
-                    return { nombre: cols[0] || '', existencia: cols[1] || '', precio: parseFloat(cols[2]) || 0, categoria: (cols[3] || 'GENERAL').toUpperCase(), imagen: cols[4] ? cols[4].trim() : '', mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI' };
+                    return { 
+                        nombre: cols[0] || '', 
+                        existencia: cols[1] || '', 
+                        precio: parseFloat(cols[2]) || 0, 
+                        categoria: (cols[3] || 'GENERAL').toUpperCase(), 
+                        imagen: cols[4] ? cols[4].trim() : '', 
+                        mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI',
+                        minDesc: parseInt(cols[6]) || 0, 
+                        precioDesc: parseFloat(cols[7]) || 0 
+                    };
                 }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
                 allProducts.forEach(p => { tempCantidades[p.nombre] = 1; sugCantidades[p.nombre] = 1; });
                 generarMenuCategorias();
@@ -458,7 +458,6 @@
             const item = carrito.find(i => i.nombre === nombre);
             if (item) item.cantidad += cantidad; else carrito.push({ nombre, precio, cantidad });
             
-            // Sincronizar cantidad temporal en la tarjeta del producto si está visible
             tempCantidades[nombre] = cantidad;
             const qtyText = document.getElementById(`qty-text-${nombre}`);
             if (qtyText) qtyText.innerText = cantidad;
@@ -519,7 +518,6 @@
                 }
             }
             
-            // Sincronizar el contador en la tarjeta del producto si el producto sigue en el carrito o actualizar su visualización
             const qtyEnCarrito = item ? item.cantidad : 1;
             tempCantidades[nombre] = qtyEnCarrito;
             const qtyText = document.getElementById(`qty-text-${nombre}`);
@@ -529,12 +527,45 @@
         }
 
         function actualizarCarritoBarra() {
-            const totalPrecio = carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0);
+            let totalPrecio = 0;
+            
+            const carritoConPrecios = carrito.map(item => {
+                const productoBase = allProducts.find(p => p.nombre === item.nombre);
+                let precioFinal = item.precio;
+
+                if (productoBase && productoBase.minDesc > 0 && item.cantidad >= productoBase.minDesc) {
+                    precioFinal = productoBase.precioDesc;
+                }
+                
+                totalPrecio += (precioFinal * item.cantidad);
+                return { ...item, precioFinal };
+            });
+
             document.getElementById('headerCartTotal').innerText = `$${totalPrecio.toFixed(2)}`;
             
             const list = document.getElementById('cartItemsList');
-            if (carrito.length === 0) { list.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>`; document.getElementById('cartTotalSection').innerHTML = ''; return; }
-            list.innerHTML = carrito.map(i => `<div class="cart-item-row"><div><strong>${i.nombre}</strong><br><span style="color: #666; font-size: 11px;">$${(i.precio * i.cantidad).toFixed(2)}</span></div><div class="cart-qty-controls"><button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button><span style="font-weight: bold; min-width: 18px; text-align: center; font-size: 13px;">${i.cantidad}</span><button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button></div></div>`).join('');
+            if (carrito.length === 0) { 
+                list.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>`; 
+                document.getElementById('cartTotalSection').innerHTML = ''; 
+                return; 
+            }
+
+            list.innerHTML = carritoConPrecios.map(i => {
+                const subtotal = (i.precioFinal * i.cantidad).toFixed(2);
+                return `<div class="cart-item-row">
+                    <div>
+                        <strong>${i.nombre}</strong><br>
+                        <span style="color: #666; font-size: 11px;">$${subtotal}</span>
+                        ${i.precioFinal < i.precio ? '<span style="color: green; font-size: 10px; display:block;">(¡Precio de oferta aplicado!)</span>' : ''}
+                    </div>
+                    <div class="cart-qty-controls">
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button>
+                        <span style="font-weight: bold; min-width: 18px; text-align: center; font-size: 13px;">${i.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button>
+                    </div>
+                </div>`;
+            }).join('');
+
             document.getElementById('cartTotalSection').innerHTML = `<div class="cart-total-row"><span>Total:</span><span style="color: var(--accent-color);">$${totalPrecio.toFixed(2)}</span></div>`;
         }
 
@@ -542,7 +573,21 @@
 
         function enviarPedidoWhatsApp() {
             if (carrito.length === 0) return alert("Tu carrito está vacío");
-            let msg = "Hola, quiero hacer el siguiente pedido:\n" + carrito.map(i => `• ${i.cantidad}x ${i.nombre} ($${(i.precio * i.cantidad).toFixed(2)})`).join('\n') + `\n\n*Total: $${carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2)}*`;
+            
+            let msg = "Hola, quiero hacer el siguiente pedido:\n";
+            let totalPrecio = 0;
+
+            carrito.forEach(i => {
+                const productoBase = allProducts.find(p => p.nombre === i.nombre);
+                let precioFinal = i.precio;
+                if (productoBase && productoBase.minDesc > 0 && i.cantidad >= productoBase.minDesc) {
+                    precioFinal = productoBase.precioDesc;
+                }
+                totalPrecio += (precioFinal * i.cantidad);
+                msg += `• ${i.cantidad}x ${i.nombre} ($${(precioFinal * i.cantidad).toFixed(2)})\n`;
+            });
+
+            msg += `\n*Total: $${totalPrecio.toFixed(2)}*`;
             window.open(`https://wa.me/50374184366?text=${encodeURIComponent(msg)}`);
             carrito = []; actualizarCarritoBarra(); filtrarProductos(); toggleCartModal();
         }
