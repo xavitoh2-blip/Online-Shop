@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Shop</title>
     <style>
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
         
-        /* Corrección de caja global para evitar desbordamientos laterales */
         *, *::before, *::after { box-sizing: border-box; }
         
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; overflow-x: hidden; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
         
         header { 
             background-color: var(--accent-color); 
@@ -30,11 +23,13 @@
 
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; }
-        .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; background: transparent; }
+        
+        /* 16px exactos y sin zoom en iOS */
+        .search-box input { border: none; outline: none; width: 100%; font-size: 16px; margin-left: 10px; color: #333; background: transparent; -webkit-appearance: none; }
+        
         .search-box span { color: var(--accent-color); font-weight: bold; }
         .clear-search { cursor: pointer; color: #e67e22; font-weight: bold; padding: 0 5px; font-size: 16px; display: none; }
 
-        /* Estilos del menú flotante de sugerencias corregido para móviles */
         #searchSuggestions {
             display: none;
             position: absolute;
@@ -86,7 +81,6 @@
         .sug-add-btn { background-color: var(--accent-color); color: white; border: none; width: 35px; height: 35px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .sug-add-btn:hover { filter: brightness(90%); }
 
-        /* Estilos generales */
         .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
         .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
         .slide { min-width: 100%; height: 100%; box-sizing: border-box; }
@@ -120,7 +114,6 @@
         .cart-wrapper { position: relative; display: inline-block; }
         .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
         
-        /* Modal del carrito optimizado y centrado seguro para móviles */
         #cartModal { display: none; position: fixed; bottom: 70px; right: 10px; left: 10px; max-width: 320px; margin-left: auto; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; max-height: 60vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
         #cartModal::after { content: ''; position: absolute; bottom: -10px; right: 35px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid white; }
         .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
@@ -138,266 +131,3 @@
         .menu-cat-btn:hover { background: var(--accent-color); color: white; }
         #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--accent-color); border-radius: 10px; text-align: center; }
     </style>
-</head>
-<body>
-    <header>
-        <div class="header-top">
-            <div class="menu-icon" onclick="toggleMenu()">☰</div>
-            <div class="welcome-text">Online Shop</div>
-        </div>
-        <div class="search-container">
-            <div class="search-box">
-                <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="¿Qué buscas?" onkeyup="manejarBusqueda()" oninput="manejarBusqueda()">
-                <span class="clear-search" id="clearSearchBtn" onclick="limpiarBusqueda()">✕</span>
-            </div>
-            <div id="searchSuggestions">
-                <div class="suggestions-header">Sugerencias</div>
-                <div id="suggestionsList"></div>
-            </div>
-        </div>
-    </header>
-    
-    <div class="promo-slider">
-        <div class="slides" id="sliderContainer">
-            <div class="slide"><img src="promo1.png" alt="Promo 1" loading="lazy"></div>
-            <div class="slide"><img src="promo2.png" alt="Promo 2" loading="lazy"></div>
-            <div class="slide"><img src="promo3.png" alt="Promo 3" loading="lazy"></div>
-        </div>
-    </div>
-
-    <div class="section-title">Categorías destacadas</div>
-    <div class="featured-categories">
-        <div class="cat-card" onclick="seleccionarCategoria('SELLO DE ORO')">
-            <img src="cat1.png" alt="Sabor Oriental">
-            <span>Sabor Oriental</span>
-        </div>
-        <div class="cat-card" onclick="seleccionarCategoria('ASADOS')">
-            <img src="cat2.png" alt="Asados">
-            <span>Asados</span>
-        </div>
-    </div>
-
-    <div class="product-grid" id="product-container"></div>
-    <div id="pagination-section"></div>
-
-    <div id="menuModal" onclick="toggleMenu(event)">
-        <div class="menu-content" onclick="event.stopPropagation()">
-            <h3>Categorías</h3>
-            <div id="menuCategoriesList" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1;"></div>
-            <button onclick="toggleAdminPanel()" style="background: none; border: none; color: #888; margin-top: auto; cursor: pointer; text-align: left; padding: 5px;">⚙️ Configurar enlace</button>
-        </div>
-    </div>
-
-    <div id="adminPanel">
-        <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
-        <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
-        <br>
-        <button onclick="loadInventory(true)" style="background: var(--accent-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
-    </div>
-
-    <div id="cartModal" style="display: none;">
-        <div class="cart-header-title">
-            <span>🛍️ Tu Carrito</span>
-            <span onclick="toggleCartModal()" style="cursor: pointer; font-size: 16px; color: #888;">✕</span>
-        </div>
-        <div id="cartItemsList">
-            <p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>
-        </div>
-        <div id="cartTotalSection"></div>
-        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px; font-size: 14px; cursor: pointer;">Pedir por WhatsApp</button>
-    </div>
-
-    <nav class="bottom-nav">
-        <a class="nav-item" onclick="seleccionarCategoria('TODOS')"><div>🏠</div>Inicio</a>
-        <a class="nav-item" onclick="window.open('https://wa.me/50374184366', '_blank')"><div>💬</div>WhatsApp</a>
-        <a class="nav-item" onclick="toggleCartModal()">
-            <div class="cart-wrapper">🛒<span id="cartBadge" class="badge">0</span></div>
-            Carrito
-        </a>
-    </nav>
-
-    <script>
-        let currentIndex = 0;
-        function changeSlide() {
-            const slides = document.querySelectorAll('.slide');
-            if (slides.length === 0) return;
-            currentIndex = (currentIndex + 1) % slides.length;
-            const container = document.getElementById('sliderContainer');
-            container.style.transform = `translateX(-${currentIndex * 100}%)`;
-        }
-        setInterval(changeSlide, 4000);
-
-        let allProducts = [], carrito = [], categoriaSeleccionada = 'TODOS';
-        let tempCantidades = {}, sugCantidades = {};
-        let paginaActual = 1;
-        const productosPorPagina = 12;
-
-        window.onload = () => { loadInventory(false); };
-
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('cartModal');
-            const cartNav = document.querySelector('.nav-item:last-child');
-            const searchContainer = document.querySelector('.search-container');
-            if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartNav.contains(event.target)) modal.style.display = 'none';
-            if (!searchContainer.contains(event.target)) document.getElementById('searchSuggestions').style.display = 'none';
-        });
-
-        function toggleMenu(e) {
-            const modal = document.getElementById('menuModal');
-            if (!e || e.target === modal || e.currentTarget.classList.contains('menu-icon')) modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function toggleAdminPanel() {
-            toggleMenu();
-            const panel = document.getElementById('adminPanel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        }
-
-        async function loadInventory(save) {
-            let url = localStorage.getItem('savedSheetUrl') || "https://docs.google.com/spreadsheets/d/1bXSibj51JO5ilbs_HRkUy96-gTXQmC2NxGsyPXNyDU8/edit?usp=sharing";
-            if (save) { url = document.getElementById('sheetUrl').value; localStorage.setItem('savedSheetUrl', url); }
-            url = url.split('/edit')[0] + '/export?format=csv';
-            try {
-                const res = await fetch(url);
-                const data = await res.text();
-                const lines = data.split('\n');
-                allProducts = lines.slice(1).map(line => {
-                    const cols = line.split(',');
-                    return { nombre: cols[0] || '', existencia: cols[1] || '', precio: parseFloat(cols[2]) || 0, categoria: (cols[3] || 'GENERAL').toUpperCase(), imagen: cols[4] ? cols[4].trim() : '', mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI' };
-                }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
-                allProducts.forEach(p => { tempCantidades[p.nombre] = 1; sugCantidades[p.nombre] = 1; });
-                generarMenuCategorias();
-                filtrarProductos();
-            } catch(e) { console.error(e); }
-        }
-
-        function generarMenuCategorias() {
-            const container = document.getElementById('menuCategoriesList');
-            const cats = [...new Set(allProducts.map(p => p.categoria))];
-            container.innerHTML = `<button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>` + cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
-        }
-
-        function seleccionarCategoria(cat) { 
-            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
-        }
-
-        function manejarBusqueda() {
-            const textoInput = document.getElementById('searchInput').value;
-            document.getElementById('clearSearchBtn').style.display = textoInput.length > 0 ? 'block' : 'none';
-            paginaActual = 1; filtrarProductos(); mostrarSugerenciasFlotantes(textoInput);
-        }
-
-        function limpiarBusqueda() {
-            document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('searchSuggestions').style.display = 'none'; paginaActual = 1; filtrarProductos();
-        }
-
-        function mostrarSugerenciasFlotantes(texto) {
-            const suggestionsBox = document.getElementById('searchSuggestions'), suggestionsList = document.getElementById('suggestionsList');
-            if (!texto || texto.trim() === '') { suggestionsBox.style.display = 'none'; return; }
-            
-            const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5);
-            
-            if (filtrados.length === 0) { suggestionsBox.style.display = 'none'; return; }
-            suggestionsList.innerHTML = filtrados.map(p => {
-                let qty = sugCantidades[p.nombre] || 1;
-                return `<div class="suggestion-item">
-                    <img class="suggestion-img" src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
-                    <div class="suggestion-info"><div class="suggestion-name">${p.nombre}</div><div class="suggestion-price">$${p.precio.toFixed(2)}</div></div>
-                    <div class="suggestion-actions">
-                        <div class="sug-qty-controls">
-                            <button class="sug-qty-btn" onclick="cambiarSugCantidad('${p.nombre}', -1, event)">-</button>
-                            <span class="sug-qty-num" id="sug-qty-${p.nombre}">${qty}</span>
-                            <button class="sug-qty-btn" onclick="cambiarSugCantidad('${p.nombre}', 1, event)">+</button>
-                        </div>
-                        <button class="sug-add-btn" onclick="agregarDesdeSugerencia('${p.nombre}', ${p.precio}, event)">🛒</button>
-                    </div>
-                </div>`;
-            }).join('');
-            suggestionsBox.style.display = 'block';
-        }
-
-        function cambiarSugCantidad(nombre, cambio, event) {
-            event.stopPropagation();
-            if (!sugCantidades[nombre]) sugCantidades[nombre] = 1;
-            sugCantidades[nombre] = Math.max(1, sugCantidades[nombre] + cambio);
-            document.getElementById(`sug-qty-${nombre}`).innerText = sugCantidades[nombre];
-        }
-
-        function agregarDesdeSugerencia(nombre, precio, event) {
-            event.stopPropagation();
-            const cantidad = sugCantidades[nombre] || 1;
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) item.cantidad += cantidad; else carrito.push({ nombre, precio, cantidad });
-            actualizarCarritoBarra();
-        }
-
-        function filtrarProductos() {
-            const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
-            const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
-            if (paginaActual > totalPaginas) paginaActual = totalPaginas;
-            const productosPagina = filtrados.slice((paginaActual - 1) * productosPorPagina, paginaActual * productosPorPagina);
-            document.getElementById('product-container').innerHTML = productosPagina.map(p => {
-                let qty = tempCantidades[p.nombre] || 1;
-                return `<div class="product-card">
-                    <div class="product-img-container"><img src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy"></div>
-                    <h3>${p.nombre}</h3><p class="price">$${p.precio.toFixed(2)}</p>
-                    <div class="product-qty-box"><button class="product-qty-btn" onclick="cambiarTempCantidad('${p.nombre}', -1)">-</button><span class="product-qty-num" id="qty-text-${p.nombre}">${qty}</span><button class="product-qty-btn" onclick="cambiarTempCantidad('${p.nombre}', 1)">+</button></div>
-                    <button class="add-btn" onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
-                </div>`;
-            }).join('');
-            renderizarPaginacion(totalPaginas);
-        }
-
-        function renderizarPaginacion(totalPaginas) {
-            const container = document.getElementById('pagination-section');
-            if (totalPaginas <= 1) { container.innerHTML = ''; return; }
-            let inicio = Math.max(1, paginaActual - 2), fin = Math.min(totalPaginas, inicio + 4);
-            if (fin - inicio < 4) inicio = Math.max(1, fin - 4);
-            let botones = '';
-            for (let i = inicio; i <= fin; i++) botones += `<button class="page-btn ${i === paginaActual ? 'active' : ''}" onclick="cambiarPagina(${i})">${i}</button>`;
-            container.innerHTML = `<div class="pagination-container"><div class="pagination-info">Página ${paginaActual} de ${totalPaginas}</div><div class="pagination-controls"><button class="page-btn" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>Anterior</button>${botones}<button class="page-btn" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>Siguiente</button></div></div>`;
-        }
-
-        function cambiarPagina(n) { paginaActual = n; filtrarProductos(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        function cambiarTempCantidad(nombre, cambio) {
-            tempCantidades[nombre] = Math.max(1, (tempCantidades[nombre] || 1) + cambio);
-            document.getElementById(`qty-text-${nombre}`).innerText = tempCantidades[nombre];
-        }
-
-        function agregarAlCarrito(nombre, precio) {
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) item.cantidad += tempCantidades[nombre] || 1; else carrito.push({ nombre, precio, cantidad: tempCantidades[nombre] || 1 });
-            actualizarCarritoBarra();
-        }
-
-        function cambiarCantidadCarrito(e, nombre, cambio) {
-            e.stopPropagation();
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) { item.cantidad += cambio; if (item.cantidad <= 0) carrito = carrito.filter(i => i.nombre !== nombre); }
-            actualizarCarritoBarra();
-        }
-
-        function actualizarCarritoBarra() {
-            const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
-            document.getElementById('cartBadge').innerText = totalItems;
-            document.getElementById('cartBadge').style.display = totalItems > 0 ? 'block' : 'none';
-            const list = document.getElementById('cartItemsList');
-            if (carrito.length === 0) { list.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>`; document.getElementById('cartTotalSection').innerHTML = ''; return; }
-            list.innerHTML = carrito.map(i => `<div class="cart-item-row"><div><strong>${i.nombre}</strong><br><span style="color: #666; font-size: 11px;">$${(i.precio * i.cantidad).toFixed(2)}</span></div><div class="cart-qty-controls"><button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button><span style="font-weight: bold; min-width: 18px; text-align: center; font-size: 13px;">${i.cantidad}</span><button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button></div></div>`).join('');
-            document.getElementById('cartTotalSection').innerHTML = `<div class="cart-total-row"><span>Total:</span><span style="color: var(--accent-color);">$${carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2)}</span></div>`;
-        }
-
-        function toggleCartModal() { const modal = document.getElementById('cartModal'); modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex'; }
-
-        function enviarPedidoWhatsApp() {
-            if (carrito.length === 0) return alert("Tu carrito está vacío");
-            let msg = "Hola, quiero hacer el siguiente pedido:\n" + carrito.map(i => `• ${i.cantidad}x ${i.nombre} ($${(i.precio * i.cantidad).toFixed(2)})`).join('\n') + `\n\n*Total: $${carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2)}*`;
-            window.open(`https://wa.me/50374184366?text=${encodeURIComponent(msg)}`);
-            carrito = []; actualizarCarritoBarra(); filtrarProductos(); toggleCartModal();
-        }
-    </script>
-</body>
-</html>
