@@ -23,7 +23,6 @@
             -webkit-text-size-adjust: 100%; 
         }
 
-        /* Fija la pantalla completa al buscar para que el teclado no mueva el encabezado */
         body.search-active {
             position: fixed;
             width: 100%;
@@ -31,7 +30,6 @@
             overflow: hidden;
         }
         
-        /* Encabezado limpio con fondo blanco y estilo de la segunda referencia */
         header { 
             background-color: #ffffff; 
             color: var(--accent-color); 
@@ -44,7 +42,6 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        /* El título Online Shop con el color de acento y función de inicio */
         .welcome-text { 
             font-size: 18px; 
             font-weight: bold; 
@@ -55,21 +52,20 @@
             color: var(--accent-color);
         }
 
-        /* Botón de carrito superior con los colores de la primera imagen */
+        /* Carrito libre sin fondo ni bordes encerrados, con el estilo de texto limpio */
         .header-cart-btn {
-            background: rgba(243, 156, 18, 0.1);
-            padding: 6px 12px;
-            border-radius: 20px;
+            background: transparent;
+            padding: 0;
+            border: none;
             display: flex;
             align-items: center;
             gap: 6px;
             cursor: pointer;
             color: var(--accent-color);
             font-weight: bold;
-            font-size: 15px;
-            border: 1px solid rgba(243, 156, 18, 0.3);
+            font-size: 18px;
         }
-        .header-cart-btn span { font-size: 15px; }
+        .header-cart-btn span { font-size: 18px; color: var(--accent-color); }
 
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; border: 1px solid #e0e0e0; }
@@ -158,7 +154,6 @@
         .page-btn:disabled { color: #bbb; cursor: not-allowed; background: #fafafa; }
         .page-btn.active { background: var(--accent-color); color: white; font-weight: bold; }
         
-        /* Botón flotante de WhatsApp */
         .whatsapp-float {
             position: fixed;
             bottom: 20px;
@@ -179,7 +174,6 @@
         }
         .whatsapp-float:hover { filter: brightness(90%); }
 
-        /* Modal del carrito reubicado hacia arriba */
         #cartModal { display: none; position: fixed; top: 70px; right: 15px; max-width: 320px; width: 90%; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 3500; max-height: 65vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
         .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         #cartItemsList { overflow-y: auto; max-height: 35vh; flex-grow: 1; }
@@ -201,13 +195,12 @@
     <header>
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
-            <!-- Al tocar Online Shop funciona como Inicio -->
             <div class="welcome-text" onclick="seleccionarCategoria('TODOS')">Online Shop</div>
-            <!-- Carrito superior -->
-            <div class="header-cart-btn" onclick="toggleCartModal()">
+            <!-- Carrito limpio sin recuadro -->
+            <button class="header-cart-btn" onclick="toggleCartModal()">
                 <span>🛒</span>
                 <span id="headerCartTotal">$0.00</span>
-            </div>
+            </button>
         </div>
         <div class="search-container">
             <div class="search-box">
@@ -272,7 +265,6 @@
         <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px; font-size: 14px; cursor: pointer;">Pedir por WhatsApp</button>
     </div>
 
-    <!-- Botón flotante de WhatsApp -->
     <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
 
     <script>
