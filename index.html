@@ -19,7 +19,7 @@
         }
 
         body { 
-            padding-bottom: 80px; 
+            padding-bottom: 40px; 
             -webkit-text-size-adjust: 100%; 
         }
 
@@ -30,11 +30,6 @@
             height: 100%;
             overflow: hidden;
         }
-
-        /* Oculta la barra inferior cuando el buscador está activo */
-        body.hide-bottom-nav .bottom-nav {
-            display: none !important;
-        }
         
         header { 
             background-color: var(--accent-color); 
@@ -43,14 +38,39 @@
             background-position: center; 
             background-repeat: no-repeat;
             color: white; 
-            padding: 20px 15px; 
+            padding: 15px; 
             position: relative;
             width: 100%;
         }
 
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: white; }
-        .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; margin-left: 15px; }
+        
+        /* El título Online Shop ahora funciona como botón de inicio */
+        .welcome-text { 
+            font-size: 18px; 
+            font-weight: bold; 
+            flex-grow: 1; 
+            margin-left: 15px; 
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Botón de carrito superior estilo la referencia */
+        .header-cart-btn {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .header-cart-btn span { font-size: 15px; }
 
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; }
@@ -138,13 +158,30 @@
         .page-btn:hover:not(:disabled) { background: #f8f8f8; }
         .page-btn:disabled { color: #bbb; cursor: not-allowed; background: #fafafa; }
         .page-btn.active { background: var(--accent-color); color: white; font-weight: bold; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
-        .nav-item { text-align: center; font-size: 11px; color: #666; cursor: pointer; flex-grow: 1; text-decoration: none; }
-        .cart-wrapper { position: relative; display: inline-block; }
-        .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
         
-        #cartModal { display: none; position: fixed; bottom: 70px; right: 10px; left: 10px; max-width: 320px; margin-left: auto; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; max-height: 60vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
-        #cartModal::after { content: ''; position: absolute; bottom: -10px; right: 35px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid white; }
+        /* Botón flotante de WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #25d366;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .whatsapp-float:hover { filter: brightness(90%); }
+
+        /* Modal del carrito reubicado hacia arriba */
+        #cartModal { display: none; position: fixed; top: 70px; right: 15px; max-width: 320px; width: 90%; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 3500; max-height: 65vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
         .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         #cartItemsList { overflow-y: auto; max-height: 35vh; flex-grow: 1; }
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f1f1; padding-bottom: 6px; font-size: 13px; color: #333; }
@@ -153,7 +190,7 @@
         .qty-btn { background: #eee; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #333; }
         .qty-btn:hover { background: var(--accent-color); color: white; }
         
-        #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; }
         .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
         .menu-content h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
@@ -165,7 +202,13 @@
     <header>
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
-            <div class="welcome-text">Online Shop</div>
+            <!-- Al tocar Online Shop funciona como Inicio -->
+            <div class="welcome-text" onclick="seleccionarCategoria('TODOS')">Online Shop</div>
+            <!-- Carrito superior -->
+            <div class="header-cart-btn" onclick="toggleCartModal()">
+                <span>🛒</span>
+                <span id="headerCartTotal">$0.00</span>
+            </div>
         </div>
         <div class="search-container">
             <div class="search-box">
@@ -230,14 +273,8 @@
         <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px; font-size: 14px; cursor: pointer;">Pedir por WhatsApp</button>
     </div>
 
-    <nav class="bottom-nav">
-        <a class="nav-item" onclick="seleccionarCategoria('TODOS')"><div>🏠</div>Inicio</a>
-        <a class="nav-item" onclick="window.open('https://wa.me/50374184366', '_blank')"><div>💬</div>WhatsApp</a>
-        <a class="nav-item" onclick="toggleCartModal()">
-            <div class="cart-wrapper">🛒<span id="cartBadge" class="badge">0</span></div>
-            Carrito
-        </a>
-    </nav>
+    <!-- Botón flotante de WhatsApp -->
+    <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
 
     <script>
         let currentIndex = 0;
@@ -259,12 +296,12 @@
 
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('cartModal');
-            const cartNav = document.querySelector('.nav-item:last-child');
+            const cartBtn = document.querySelector('.header-cart-btn');
             const searchContainer = document.querySelector('.search-container');
-            if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartNav.contains(event.target)) modal.style.display = 'none';
+            if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartBtn.contains(event.target)) modal.style.display = 'none';
             if (!searchContainer.contains(event.target)) {
                 document.getElementById('searchSuggestions').style.display = 'none';
-                document.body.classList.remove('search-active', 'hide-bottom-nav');
+                document.body.classList.remove('search-active');
             }
         });
 
@@ -304,7 +341,7 @@
         }
 
         function seleccionarCategoria(cat) { 
-            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.body.classList.remove('search-active', 'hide-bottom-nav'); document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
+            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.body.classList.remove('search-active'); document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
         }
 
         function manejarBusqueda() {
@@ -317,7 +354,7 @@
             document.getElementById('searchInput').value = ''; 
             document.getElementById('clearSearchBtn').style.display = 'none'; 
             document.getElementById('searchSuggestions').style.display = 'none'; 
-            document.body.classList.remove('search-active', 'hide-bottom-nav'); 
+            document.body.classList.remove('search-active'); 
             paginaActual = 1; 
             filtrarProductos();
         }
@@ -326,7 +363,7 @@
             const suggestionsBox = document.getElementById('searchSuggestions'), suggestionsList = document.getElementById('suggestionsList');
             if (!texto || texto.trim() === '') { 
                 suggestionsBox.style.display = 'none'; 
-                document.body.classList.remove('search-active', 'hide-bottom-nav'); 
+                document.body.classList.remove('search-active'); 
                 return; 
             }
             
@@ -334,12 +371,11 @@
             
             if (filtrados.length === 0) { 
                 suggestionsBox.style.display = 'none'; 
-                document.body.classList.remove('search-active', 'hide-bottom-nav'); 
+                document.body.classList.remove('search-active'); 
                 return; 
             }
 
-            // Fija la pantalla y oculta la barra inferior para evitar solapamientos con el teclado
-            document.body.classList.add('search-active', 'hide-bottom-nav');
+            document.body.classList.add('search-active');
 
             suggestionsList.innerHTML = filtrados.map(p => {
                 let qty = sugCantidades[p.nombre] || 1;
@@ -423,13 +459,13 @@
         }
 
         function actualizarCarritoBarra() {
-            const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
-            document.getElementById('cartBadge').innerText = totalItems;
-            document.getElementById('cartBadge').style.display = totalItems > 0 ? 'block' : 'none';
+            const totalPrecio = carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0);
+            document.getElementById('headerCartTotal').innerText = `$${totalPrecio.toFixed(2)}`;
+            
             const list = document.getElementById('cartItemsList');
             if (carrito.length === 0) { list.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>`; document.getElementById('cartTotalSection').innerHTML = ''; return; }
             list.innerHTML = carrito.map(i => `<div class="cart-item-row"><div><strong>${i.nombre}</strong><br><span style="color: #666; font-size: 11px;">$${(i.precio * i.cantidad).toFixed(2)}</span></div><div class="cart-qty-controls"><button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button><span style="font-weight: bold; min-width: 18px; text-align: center; font-size: 13px;">${i.cantidad}</span><button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button></div></div>`).join('');
-            document.getElementById('cartTotalSection').innerHTML = `<div class="cart-total-row"><span>Total:</span><span style="color: var(--accent-color);">$${carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0).toFixed(2)}</span></div>`;
+            document.getElementById('cartTotalSection').innerHTML = `<div class="cart-total-row"><span>Total:</span><span style="color: var(--accent-color);">$${totalPrecio.toFixed(2)}</span></div>`;
         }
 
         function toggleCartModal() { const modal = document.getElementById('cartModal'); modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex'; }
