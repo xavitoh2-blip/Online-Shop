@@ -448,12 +448,17 @@
 
             suggestionsList.innerHTML = filtrados.map(p => {
                 let qty = sugCantidades[p.nombre] || 1;
+                let promoRibbonText = '';
+                if (p.minDesc > 0) {
+                    let totalPromo = (p.minDesc * p.precioDesc).toFixed(2);
+                    promoRibbonText = `<div style="font-size: 10px; color: #16a085;">📦 Seleccione ${p.minDesc}X$${totalPromo}</div>`;
+                }
                 return `<div class="suggestion-item">
                     <img class="suggestion-img" src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
                     <div class="suggestion-info">
                         <div class="suggestion-name">${p.nombre}</div>
                         <div class="suggestion-price">$${p.precio.toFixed(2)}</div>
-                        ${p.minDesc > 0 ? `<div style="font-size: 10px; color: #16a085;">📦 Seleccione ${p.minDesc}X$${p.precioDesc.toFixed(2)}</div>` : ''}
+                        ${promoRibbonText}
                     </div>
                     <div class="suggestion-actions">
                         <div class="sug-qty-controls">
@@ -499,7 +504,8 @@
                 let qty = tempCantidades[p.nombre] || 1;
                 let promoRibbonHtml = '';
                 if (p.minDesc > 0) {
-                    promoRibbonHtml = `<div class="promo-badge-ribbon">Seleccione ${p.minDesc}X$${p.precioDesc.toFixed(2)}</div>`;
+                    let totalPromo = (p.minDesc * p.precioDesc).toFixed(2);
+                    promoRibbonHtml = `<div class="promo-badge-ribbon">Seleccione ${p.minDesc}X$${totalPromo}</div>`;
                 }
 
                 return `<div class="product-card">
