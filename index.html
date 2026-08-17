@@ -453,7 +453,7 @@
                     <div class="suggestion-info">
                         <div class="suggestion-name">${p.nombre}</div>
                         <div class="suggestion-price">$${p.precio.toFixed(2)}</div>
-                        ${p.minDesc > 0 ? `<div style="font-size: 10px; color: #16a085;">📦 Lleva ${p.minDesc}+ a $${p.precioDesc.toFixed(2)} c/u</div>` : ''}
+                        ${p.minDesc > 0 ? `<div style="font-size: 10px; color: #16a085;">📦 Seleccione ${p.minDesc}X$${p.precioDesc.toFixed(2)}</div>` : ''}
                     </div>
                     <div class="suggestion-actions">
                         <div class="sug-qty-controls">
@@ -499,7 +499,7 @@
                 let qty = tempCantidades[p.nombre] || 1;
                 let promoRibbonHtml = '';
                 if (p.minDesc > 0) {
-                    promoRibbonHtml = `<div class="promo-badge-ribbon">Llevar ${p.minDesc} a $${p.precioDesc.toFixed(2)}</div>`;
+                    promoRibbonHtml = `<div class="promo-badge-ribbon">Seleccione ${p.minDesc}X$${p.precioDesc.toFixed(2)}</div>`;
                 }
 
                 return `<div class="product-card">
