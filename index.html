@@ -171,6 +171,18 @@
         .product-img-container img { width: 100%; height: 100%; object-fit: cover; }
         .product-card h3 { font-size: 14px; margin: 6px 0; color: #333; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 16px; margin: 4px 0; }
+        
+        .promo-badge {
+            background-color: #e8f8f5;
+            color: #16a085;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 6px;
+            border-radius: 6px;
+            margin: 4px 0;
+            border: 1px dashed #16a085;
+        }
+
         .product-qty-box { display: flex; align-items: center; justify-content: space-between; background: #f1f1f1; border-radius: 8px; padding: 4px 8px; margin: 8px 0; border: 1px solid #e2e2e2; }
         .product-qty-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: var(--accent-color); cursor: pointer; padding: 0 8px; }
         .product-qty-num { font-size: 15px; font-weight: bold; color: #333; }
@@ -431,7 +443,11 @@
                 let qty = sugCantidades[p.nombre] || 1;
                 return `<div class="suggestion-item">
                     <img class="suggestion-img" src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
-                    <div class="suggestion-info"><div class="suggestion-name">${p.nombre}</div><div class="suggestion-price">$${p.precio.toFixed(2)}</div></div>
+                    <div class="suggestion-info">
+                        <div class="suggestion-name">${p.nombre}</div>
+                        <div class="suggestion-price">$${p.precio.toFixed(2)}</div>
+                        ${p.minDesc > 0 ? `<div style="font-size: 10px; color: #16a085;">📦 ${p.minDesc}+ unid. a $${p.precioDesc.toFixed(2)} c/u</div>` : ''}
+                    </div>
                     <div class="suggestion-actions">
                         <div class="sug-qty-controls">
                             <button class="sug-qty-btn" onclick="cambiarSugCantidad('${p.nombre}', -1, event)">-</button>
@@ -471,11 +487,19 @@
             const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
             if (paginaActual > totalPaginas) paginaActual = totalPaginas;
             const productosPagina = filtrados.slice((paginaActual - 1) * productosPorPagina, paginaActual * productosPorPagina);
+            
             document.getElementById('product-container').innerHTML = productosPagina.map(p => {
                 let qty = tempCantidades[p.nombre] || 1;
+                let promoBadgeHtml = '';
+                if (p.minDesc > 0) {
+                    promoBadgeHtml = `<div class="promo-badge">💡 Lleva ${p.minDesc}+ a $${p.precioDesc.toFixed(2)} c/u</div>`;
+                }
+
                 return `<div class="product-card">
                     <div class="product-img-container"><img src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy"></div>
-                    <h3>${p.nombre}</h3><p class="price">$${p.precio.toFixed(2)}</p>
+                    <h3>${p.nombre}</h3>
+                    <p class="price">$${p.precio.toFixed(2)}</p>
+                    ${promoBadgeHtml}
                     <div class="product-qty-box"><button class="product-qty-btn" onclick="cambiarTempCantidad('${p.nombre}', -1)">-</button><span class="product-qty-num" id="qty-text-${p.nombre}">${qty}</span><button class="product-qty-btn" onclick="cambiarTempCantidad('${p.nombre}', 1)">+</button></div>
                     <button class="add-btn" onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar</button>
                 </div>`;
@@ -555,8 +579,8 @@
                 return `<div class="cart-item-row">
                     <div>
                         <strong>${i.nombre}</strong><br>
-                        <span style="color: #666; font-size: 11px;">$${subtotal}</span>
-                        ${i.precioFinal < i.precio ? '<span style="color: green; font-size: 10px; display:block;">(¡Precio de oferta aplicado!)</span>' : ''}
+                        <span style="color: #666; font-size: 11px;">$${subtotal} (${i.cantidad} unids)</span>
+                        ${i.precioFinal < i.precio ? '<span style="color: #16a085; font-size: 10px; display:block; font-weight:bold;">✓ ¡Precio de mayor aplicado!</span>' : ''}
                     </div>
                     <div class="cart-qty-controls">
                         <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button>
@@ -580,11 +604,13 @@
             carrito.forEach(i => {
                 const productoBase = allProducts.find(p => p.nombre === i.nombre);
                 let precioFinal = i.precio;
+                let esMayor = false;
                 if (productoBase && productoBase.minDesc > 0 && i.cantidad >= productoBase.minDesc) {
                     precioFinal = productoBase.precioDesc;
+                    esMayor = true;
                 }
                 totalPrecio += (precioFinal * i.cantidad);
-                msg += `• ${i.cantidad}x ${i.nombre} ($${(precioFinal * i.cantidad).toFixed(2)})\n`;
+                msg += `• ${i.cantidad}x ${i.nombre} - $${(precioFinal * i.cantidad).toFixed(2)}${esMayor ? ' (Precio de mayor)' : ''}\n`;
             });
 
             msg += `\n*Total: $${totalPrecio.toFixed(2)}*`;
