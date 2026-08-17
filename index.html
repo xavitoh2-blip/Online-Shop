@@ -251,7 +251,10 @@
             const cartNav = document.querySelector('.nav-item:last-child');
             const searchContainer = document.querySelector('.search-container');
             if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartNav.contains(event.target)) modal.style.display = 'none';
-            if (!searchContainer.contains(event.target)) document.getElementById('searchSuggestions').style.display = 'none';
+            if (!searchContainer.contains(event.target)) {
+                document.getElementById('searchSuggestions').style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restaura el scroll si se toca fuera
+            }
         });
 
         function toggleMenu(e) {
@@ -290,7 +293,7 @@
         }
 
         function seleccionarCategoria(cat) { 
-            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
+            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.body.style.overflow = 'auto'; document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
         }
 
         function manejarBusqueda() {
@@ -300,16 +303,33 @@
         }
 
         function limpiarBusqueda() {
-            document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('searchSuggestions').style.display = 'none'; paginaActual = 1; filtrarProductos();
+            document.getElementById('searchInput').value = ''; 
+            document.getElementById('clearSearchBtn').style.display = 'none'; 
+            document.getElementById('searchSuggestions').style.display = 'none'; 
+            document.body.style.overflow = 'auto'; // Restaura el scroll
+            paginaActual = 1; 
+            filtrarProductos();
         }
 
         function mostrarSugerenciasFlotantes(texto) {
             const suggestionsBox = document.getElementById('searchSuggestions'), suggestionsList = document.getElementById('suggestionsList');
-            if (!texto || texto.trim() === '') { suggestionsBox.style.display = 'none'; return; }
+            if (!texto || texto.trim() === '') { 
+                suggestionsBox.style.display = 'none'; 
+                document.body.style.overflow = 'auto'; // Habilita el scroll de nuevo
+                return; 
+            }
             
             const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5);
             
-            if (filtrados.length === 0) { suggestionsBox.style.display = 'none'; return; }
+            if (filtrados.length === 0) { 
+                suggestionsBox.style.display = 'none'; 
+                document.body.style.overflow = 'auto'; // Habilita el scroll de nuevo
+                return; 
+            }
+
+            // Bloquea el scroll de la página de atrás mientras se muestran sugerencias
+            document.body.style.overflow = 'hidden';
+
             suggestionsList.innerHTML = filtrados.map(p => {
                 let qty = sugCantidades[p.nombre] || 1;
                 return `<div class="suggestion-item">
