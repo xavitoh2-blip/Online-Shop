@@ -457,6 +457,12 @@
             const cantidad = sugCantidades[nombre] || 1;
             const item = carrito.find(i => i.nombre === nombre);
             if (item) item.cantidad += cantidad; else carrito.push({ nombre, precio, cantidad });
+            
+            // Sincronizar cantidad temporal en la tarjeta del producto si está visible
+            tempCantidades[nombre] = cantidad;
+            const qtyText = document.getElementById(`qty-text-${nombre}`);
+            if (qtyText) qtyText.innerText = cantidad;
+
             actualizarCarritoBarra();
         }
 
@@ -492,19 +498,33 @@
 
         function cambiarTempCantidad(nombre, cambio) {
             tempCantidades[nombre] = Math.max(1, (tempCantidades[nombre] || 1) + cambio);
-            document.getElementById(`qty-text-${nombre}`).innerText = tempCantidades[nombre];
+            const el = document.getElementById(`qty-text-${nombre}`);
+            if (el) el.innerText = tempCantidades[nombre];
         }
 
         function agregarAlCarrito(nombre, precio) {
+            const cantidadSeleccionada = tempCantidades[nombre] || 1;
             const item = carrito.find(i => i.nombre === nombre);
-            if (item) item.cantidad += tempCantidades[nombre] || 1; else carrito.push({ nombre, precio, cantidad: tempCantidades[nombre] || 1 });
+            if (item) item.cantidad += cantidadSeleccionada; else carrito.push({ nombre, precio, cantidad: cantidadSeleccionada });
             actualizarCarritoBarra();
         }
 
         function cambiarCantidadCarrito(e, nombre, cambio) {
             e.stopPropagation();
             const item = carrito.find(i => i.nombre === nombre);
-            if (item) { item.cantidad += cambio; if (item.cantidad <= 0) carrito = carrito.filter(i => i.nombre !== nombre); }
+            if (item) { 
+                item.cantidad += cambio; 
+                if (item.cantidad <= 0) {
+                    carrito = carrito.filter(i => i.nombre !== nombre);
+                }
+            }
+            
+            // Sincronizar el contador en la tarjeta del producto si el producto sigue en el carrito o actualizar su visualización
+            const qtyEnCarrito = item ? item.cantidad : 1;
+            tempCantidades[nombre] = qtyEnCarrito;
+            const qtyText = document.getElementById(`qty-text-${nombre}`);
+            if (qtyText) qtyText.innerText = qtyEnCarrito;
+
             actualizarCarritoBarra();
         }
 
