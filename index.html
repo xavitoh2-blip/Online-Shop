@@ -2,364 +2,105 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online Shop</title>
-    <style>
-        :root { 
-            --accent-color: #f39c12; 
-            --bg-color: #f4f4f9; 
-            --primary-color: #6d4c41; 
-            --danger-color: #e74c3c;
-            --success-color: #25d366;
-        }
-        
-        *, *::before, *::after { box-sizing: border-box; }
-        
-        html, body { 
-            margin: 0; 
-            padding: 0; 
-            background-color: var(--bg-color); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-        }
-
-        body { 
-            padding-top: 70px; 
-            padding-bottom: 40px; 
-        }
-
-        /* --- HEADER --- */
-        header { 
-            background-color: #ffffff; 
-            color: var(--accent-color); 
-            padding: 15px; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            border-bottom: 1px solid #e0e0e0;
-            z-index: 2000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .header-top { display: flex; align-items: center; justify-content: space-between; }
-        
-        .welcome-text { 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: var(--accent-color);
-        }
-
-        .header-cart-btn {
-            background: transparent;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: var(--accent-color);
-            font-weight: bold;
-            font-size: 18px;
-            padding: 5px 10px;
-        }
-        .header-cart-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: currentColor;
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        .header-cart-btn span { font-size: 18px; color: var(--accent-color); }
-
-        /* --- PRODUCTOS --- */
-        .product-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-            gap: 15px; 
-            padding: 15px; 
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .product-card { 
-            background: white; 
-            padding: 12px; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            text-align: center; 
-            border: 1px solid #eee; 
-            position: relative; 
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-        }
-        
-        .promo-badge-ribbon {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: var(--danger-color);
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 4px 10px;
-            border-bottom-right-radius: 8px;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-
-        .product-img-container { 
-            width: 100%; 
-            height: 130px; 
-            margin-bottom: 8px; 
-            background: #f9f9f9; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .product-img-container img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; 
-        }
-        
-        .product-card h3 { 
-            font-size: 14px; 
-            margin: 6px 0; 
-            color: #333; 
-            height: 36px; 
-            overflow: hidden; 
-            display: -webkit-box; 
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical; 
-        }
-        
-        .product-card .price { 
-            font-weight: bold; 
-            color: var(--accent-color); 
-            font-size: 16px; 
-            margin: 4px 0; 
-        }
-        
-        /* Controles de cantidad (ocultos por defecto) */
-        .product-qty-box { 
-            display: none; 
-            align-items: center; 
-            justify-content: space-between; 
-            background: #f1f1f1; 
-            border-radius: 8px; 
-            padding: 4px 8px; 
-            margin: 8px 0; 
-            border: 1px solid #e2e2e2;
-        }
-        .product-qty-box.activo { display: flex; }
-
-        .product-qty-btn { 
-            background: none; 
-            border: none; 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: var(--accent-color); 
-            cursor: pointer; 
-            padding: 0 8px; 
-        }
-        .product-qty-num { 
-            font-size: 15px; 
-            font-weight: bold; 
-            color: #333; 
-        }
-        
-        /* Botón "Agregar" (visible solo la primera vez) */
-        .add-btn-first { 
-            background-color: var(--accent-color); 
-            color: white; 
-            border: none; 
-            padding: 8px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            width: 100%; 
-            font-weight: bold;
-            display: block;
-            margin-top: 8px;
-        }
-        .add-btn-first.oculto { display: none; }
-
-        /* --- CARRITO MODAL --- */
-        #cartModal { 
-            display: none; 
-            position: fixed; 
-            top: 70px; 
-            right: 15px; 
-            max-width: 320px; 
-            width: 90%; 
-            background: white; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-            z-index: 3500; 
-            max-height: 65vh; 
-            flex-direction: column; 
-            padding: 15px; 
-            border: 1px solid #ddd; 
-        }
-        
-        .cart-header-title { 
-            font-size: 16px; 
-            font-weight: bold; 
-            color: var(--accent-color); 
-            margin-bottom: 10px; 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 6px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        
-        #cartItemsList { 
-            overflow-y: auto; 
-            max-height: 35vh; 
-            flex-grow: 1; 
-            padding-right: 5px;
-        }
-        
-        .cart-item-row { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 8px; 
-            border-bottom: 1px solid #f1f1f1; 
-            padding-bottom: 6px; 
-            font-size: 13px; 
-            color: #333; 
-        }
-        
-        .cart-total-row { 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 15px; 
-            font-weight: bold; 
-            margin-top: 10px; 
-            padding-top: 8px; 
-            border-top: 2px solid #ddd; 
-            color: #111; 
-        }
-        
-        .cart-qty-controls { 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        .qty-btn { 
-            background: #eee; 
-            border: none; 
-            width: 24px; 
-            height: 24px; 
-            border-radius: 4px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 13px; 
-            color: #333; 
-        }
-        .qty-btn:hover { background: #ddd; }
-        
-        .whatsapp-float {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--success-color);
-            color: white;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 1000;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .whatsapp-float:hover { filter: brightness(90%); }
-    </style>
+    <!-- ... [MANTEN EL CSS QUE YA TIENES] ... -->
 </head>
 <body>
-    <header>
-        <div class="header-top">
-            <div class="welcome-text">Online Shop</div>
-            
-            <button class="header-cart-btn" onclick="toggleCartModal()">
-                <svg viewBox="0 0 24 24">
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <span id="headerCartTotal">$0.00</span>
-            </button>
-        </div>
-    </header>
+    <!-- ... [MANTEN EL HEADER Y BUSCADOR QUE YA TIENES] ... -->
 
-    <!-- Cuadrícula de Productos -->
-    <div class="product-grid" id="product-container">
-        <!-- Producto 1: ACEITE CAPULLO 750ML -->
-        <div class="product-card" id="card-ACEITE-CAPULLO-750ML">
-            <div class="promo-badge-ribbon">Seleccione 6X$11.70</div>
-            <div class="product-img-container">
-                <img src="https://alicorp.com.pe/media/Logos/logo_capullo_200x200.png" alt="ACEITE CAPULLO 750ML" loading="lazy">
-            </div>
-            <h3>ACEITE CAPULLO 750ML</h3>
-            <p class="price">$1.95</p>
-            
-            <!-- Botón "Agregar" (Solo visible cuando cantidad es 0) -->
-            <button class="add-btn-first" id="add-btn-ACEITE-CAPULLO-750ML" onclick="agregarAlCarritoInicial('ACEITE CAPULLO 750ML', 1.95)">Agregar</button>
-            
-            <!-- Controles de Cantidad (Ocultos por defecto, aparecen al agregar) -->
-            <div class="product-qty-box" id="qty-box-ACEITE-CAPULLO-750ML">
-                <button class="product-qty-btn" onclick="cambiarCantidadGeneral('ACEITE CAPULLO 750ML', -1)">-</button>
-                <span class="product-qty-num" id="qty-text-ACEITE-CAPULLO-750ML">0</span>
-                <button class="product-qty-btn" onclick="cambiarCantidadGeneral('ACEITE CAPULLO 750ML', 1)">+</button>
-            </div>
-        </div>
+    <div class="product-grid" id="product-container"></div>
 
-        <!-- Producto 2: ACEITE CAPULLO 450ML -->
-        <div class="product-card" id="card-ACEITE-CAPULLO-450ML">
-            <div class="promo-badge-ribbon">Seleccione 6X$6.78</div>
-            <div class="product-img-container">
-                <img src="https://alicorp.com.pe/media/Logos/logo_capullo_200x200.png" alt="ACEITE CAPULLO 450ML" loading="lazy">
-            </div>
-            <h3>ACEITE CAPULLO 450ML</h3>
-            <p class="price">$1.13</p>
-            
-            <!-- Botón "Agregar" (Solo visible cuando cantidad es 0) -->
-            <button class="add-btn-first" id="add-btn-ACEITE-CAPULLO-450ML" onclick="agregarAlCarritoInicial('ACEITE CAPULLO 450ML', 1.13)">Agregar</button>
-            
-            <!-- Controles de Cantidad (Ocultos por defecto, aparecen al agregar) -->
-            <div class="product-qty-box" id="qty-box-ACEITE-CAPULLO-450ML">
-                <button class="product-qty-btn" onclick="cambiarCantidadGeneral('ACEITE CAPULLO 450ML', -1)">-</button>
-                <span class="product-qty-num" id="qty-text-ACEITE-CAPULLO-450ML">0</span>
-                <button class="product-qty-btn" onclick="cambiarCantidadGeneral('ACEITE CAPULLO 450ML', 1)">+</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        let allProducts = [], carrito = [], cantidades = {};
 
-    <!-- Carrito Modal -->
-    <div id="cartModal">
-        <div class="cart-header-title">
-            <span>🛍️ Tu Carrito</span>
-            <span onclick="toggleCartModal()" style="cursor: pointer; font-size: 16px; color: #888;">✕</span>
-        </div>
-        <div id="cartItemsList">
-            <p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>
-        </div>
-        <div id="cartTotalSection"></div>
-        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: var(--success-color); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px; font-size
+        // Función para cambiar cantidad en cualquier lugar (Tarjeta o Carrito)
+        function cambiarCantidad(nombre, cambio, esBotonAgregar = false) {
+            // Si el producto no está en el carrito, inicializamos en 1
+            if (!cantidades[nombre]) cantidades[nombre] = 0;
+            
+            // Si es el botón "Agregar", solo suma 1 si estaba en 0
+            if (esBotonAgregar) {
+                if (cantidades[nombre] === 0) cantidades[nombre] = 1;
+            } else {
+                cantidades[nombre] = Math.max(0, cantidades[nombre] + cambio);
+            }
+
+            // Sincronizar con el objeto carrito
+            const index = carrito.findIndex(i => i.nombre === nombre);
+            if (cantidades[nombre] > 0) {
+                const prodBase = allProducts.find(p => p.nombre === nombre);
+                if (index > -1) {
+                    carrito[index].cantidad = cantidades[nombre];
+                } else {
+                    carrito.push({ nombre, precio: prodBase.precio, cantidad: cantidades[nombre] });
+                }
+            } else {
+                carrito = carrito.filter(i => i.nombre !== nombre);
+            }
+
+            actualizarVista();
+        }
+
+        function actualizarVista() {
+            // Actualizar tarjetas principales
+            allProducts.forEach(p => {
+                const el = document.getElementById(`qty-text-${p.nombre}`);
+                if (el) el.innerText = cantidades[p.nombre] || 0;
+            });
+            
+            // Actualizar carrito
+            actualizarCarritoBarra();
+        }
+
+        // --- REEMPLAZA TUS FUNCIONES ANTERIORES POR ESTAS ---
+
+        // Llamada desde el botón "Agregar" de la tarjeta
+        function agregarAlCarrito(nombre, precio) {
+            cambiarCantidad(nombre, 0, true);
+        }
+
+        // Llamada desde los botones + y - de la tarjeta
+        function cambiarTempCantidad(nombre, cambio) {
+            cambiarCantidad(nombre, cambio);
+        }
+
+        // Llamada desde los botones + y - del carrito
+        function cambiarCantidadCarrito(e, nombre, cambio) {
+            e.stopPropagation();
+            cambiarCantidad(nombre, cambio);
+        }
+
+        function actualizarCarritoBarra() {
+            let totalPrecio = 0;
+            const list = document.getElementById('cartItemsList');
+            
+            if (carrito.length === 0) {
+                list.innerHTML = `<p>Tu carrito está vacío</p>`;
+                document.getElementById('headerCartTotal').innerText = "$0.00";
+                return;
+            }
+
+            list.innerHTML = carrito.map(i => {
+                const prod = allProducts.find(p => p.nombre === i.nombre);
+                let precioActual = (prod.minDesc > 0 && i.cantidad >= prod.minDesc) ? prod.precioDesc : prod.precio;
+                totalPrecio += (precioActual * i.cantidad);
+                
+                return `<div class="cart-item-row">
+                    <div><strong>${i.nombre}</strong><br>$${(precioActual * i.cantidad).toFixed(2)}</div>
+                    <div class="cart-qty-controls">
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button>
+                        <span>${i.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('headerCartTotal').innerText = `$${totalPrecio.toFixed(2)}`;
+        }
+
+        // Asegúrate de que al cargar los productos inicialices el objeto cantidades
+        // allProducts.forEach(p => cantidades[p.nombre] = 0);
+    </script>
+</body>
+</html>
