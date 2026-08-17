@@ -6,7 +6,11 @@
     <title>Online Shop</title>
     <style>
         :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; }
+        
+        /* Corrección de caja global para evitar desbordamientos laterales */
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--bg-color); padding-bottom: 80px; overflow-x: hidden; }
         
         header { 
             background-color: var(--accent-color); 
@@ -17,6 +21,7 @@
             color: white; 
             padding: 20px 15px; 
             position: relative;
+            width: 100%;
         }
 
         .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -24,12 +29,12 @@
         .welcome-text { font-size: 18px; font-weight: bold; flex-grow: 1; margin-left: 15px; }
 
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
-        .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; }
         .search-box input { border: none; outline: none; width: 100%; font-size: 15px; margin-left: 10px; color: #333; background: transparent; }
         .search-box span { color: var(--accent-color); font-weight: bold; }
         .clear-search { cursor: pointer; color: #e67e22; font-weight: bold; padding: 0 5px; font-size: 16px; display: none; }
 
-        /* Estilos del menú flotante de sugerencias */
+        /* Estilos del menú flotante de sugerencias corregido para móviles */
         #searchSuggestions {
             display: none;
             position: absolute;
@@ -40,10 +45,8 @@
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             z-index: 3000;
-            /* Max height ajustado para mostrar 5 items aprox */
             max-height: 350px; 
             overflow-y: auto;
-            box-sizing: border-box;
             border: 1px solid #e0e0e0;
         }
 
@@ -80,7 +83,6 @@
         .sug-qty-btn:active { background: #e0e0e0; }
         .sug-qty-num { font-size: 15px; font-weight: bold; color: #333; width: 30px; text-align: center; }
 
-        /* Color del botón carrito en sugerencias cambiado a accent-color */
         .sug-add-btn { background-color: var(--accent-color); color: white; border: none; width: 35px; height: 35px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .sug-add-btn:hover { filter: brightness(90%); }
 
@@ -117,7 +119,9 @@
         .nav-item { text-align: center; font-size: 11px; color: #666; cursor: pointer; flex-grow: 1; text-decoration: none; }
         .cart-wrapper { position: relative; display: inline-block; }
         .badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; display: none; }
-        #cartModal { display: none; position: fixed; bottom: 70px; right: 10px; width: 300px; max-width: 90vw; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; max-height: 60vh; flex-direction: column; padding: 15px; box-sizing: border-box; border: 1px solid #ddd; }
+        
+        /* Modal del carrito optimizado y centrado seguro para móviles */
+        #cartModal { display: none; position: fixed; bottom: 70px; right: 10px; left: 10px; max-width: 320px; margin-left: auto; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; max-height: 60vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
         #cartModal::after { content: ''; position: absolute; bottom: -10px; right: 35px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid white; }
         .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         #cartItemsList { overflow-y: auto; max-height: 35vh; flex-grow: 1; }
@@ -126,6 +130,7 @@
         .cart-qty-controls { display: flex; align-items: center; gap: 6px; }
         .qty-btn { background: #eee; border: none; width: 24px; height: 24px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #333; }
         .qty-btn:hover { background: var(--accent-color); color: white; }
+        
         #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
         .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
         .menu-content h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
@@ -213,7 +218,6 @@
     </nav>
 
     <script>
-        // ... (resto del script igual)
         let currentIndex = 0;
         function changeSlide() {
             const slides = document.querySelectorAll('.slide');
@@ -292,7 +296,6 @@
             const suggestionsBox = document.getElementById('searchSuggestions'), suggestionsList = document.getElementById('suggestionsList');
             if (!texto || texto.trim() === '') { suggestionsBox.style.display = 'none'; return; }
             
-            // Filtro aplicado y limitado a 5 elementos
             const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5);
             
             if (filtrados.length === 0) { suggestionsBox.style.display = 'none'; return; }
