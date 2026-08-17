@@ -486,10 +486,7 @@
             const item = carrito.find(i => i.nombre === nombre);
             if (item) item.cantidad += cantidad; else carrito.push({ nombre, precio, cantidad });
             
-            tempCantidades[nombre] = 1;
-            const qtyText = document.getElementById(`qty-text-${nombre}`);
-            if (qtyText) qtyText.innerText = 1;
-
+            sugCantidades[nombre] = 1;
             actualizarCarritoBarra();
         }
 
@@ -543,10 +540,6 @@
             const item = carrito.find(i => i.nombre === nombre);
             if (item) item.cantidad += cantidadSeleccionada; else carrito.push({ nombre, precio, cantidad: cantidadSeleccionada });
             
-            tempCantidades[nombre] = 1;
-            const qtyText = document.getElementById(`qty-text-${nombre}`);
-            if (qtyText) qtyText.innerText = 1;
-
             actualizarCarritoBarra();
         }
 
@@ -559,10 +552,6 @@
                     carrito = carrito.filter(i => i.nombre !== nombre);
                 }
             }
-            
-            const qtyText = document.getElementById(`qty-text-${nombre}`);
-            if (qtyText && item) qtyText.innerText = item.cantidad;
-
             actualizarCarritoBarra();
         }
 
