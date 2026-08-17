@@ -19,6 +19,7 @@
         }
 
         body { 
+            padding-top: 70px; /* Espacio para que la barra fija no tape el contenido */
             padding-bottom: 40px; 
             -webkit-text-size-adjust: 100%; 
         }
@@ -30,16 +31,20 @@
             overflow: hidden;
         }
         
+        /* Barra superior fija (Menú, Título y Carrito) */
         header { 
             background-color: #ffffff; 
             color: var(--accent-color); 
             padding: 15px; 
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             border-bottom: 1px solid #e0e0e0;
+            z-index: 2000;
         }
 
-        .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
         .welcome-text { 
@@ -75,6 +80,25 @@
             stroke-linejoin: round;
         }
         .header-cart-btn span { font-size: 18px; color: var(--accent-color); }
+
+        /* Contenedor del buscador con animación para ocultarse al hacer scroll */
+        .search-bar-wrapper {
+            background-color: #ffffff;
+            padding: 10px 15px 12px 15px;
+            position: fixed;
+            top: 65px; /* Justo debajo de la barra fija */
+            left: 0;
+            width: 100%;
+            z-index: 1900;
+            border-bottom: 1px solid #eee;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        .search-bar-wrapper.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
 
         .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
         .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; border: 1px solid #e0e0e0; }
@@ -216,6 +240,10 @@
                 <span id="headerCartTotal">$0.00</span>
             </button>
         </div>
+    </header>
+
+    <!-- Buscador separado para controlar su visibilidad con el scroll -->
+    <div class="search-bar-wrapper" id="searchBarWrapper">
         <div class="search-container">
             <div class="search-box">
                 <span>🔍</span>
@@ -227,7 +255,7 @@
                 <div id="suggestionsList"></div>
             </div>
         </div>
-    </header>
+    </div>
     
     <div class="promo-slider">
         <div class="slides" id="sliderContainer">
@@ -282,6 +310,23 @@
     <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
 
     <script>
+        // Control de scroll para ocultar/mostrar el buscador
+        let lastScrollTop = 0;
+        const searchBarWrapper = document.getElementById('searchBarWrapper');
+
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                // Scroll hacia abajo -> Ocultar buscador
+                searchBarWrapper.classList.add('hidden');
+            } else {
+                // Scroll hacia arriba -> Mostrar buscador
+                searchBarWrapper.classList.remove('hidden');
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, false);
+
         let currentIndex = 0;
         function changeSlide() {
             const slides = document.querySelectorAll('.slide');
