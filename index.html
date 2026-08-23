@@ -345,11 +345,13 @@
             </div>
 
             <div style="padding: 15px; overflow-y: auto; flex-grow: 1;">
-                <div style="text-align: center; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px;">
+                <div style="text-align: center; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px; position: relative; overflow: hidden;">
+                    <div id="modalPromoRibbon"></div>
                     <img id="modalImg" src="" alt="" style="max-height: 150px; max-width: 100%; object-fit: contain; border-radius: 8px;">
                 </div>
                 <h2 id="modalNombre" style="font-size: 16px; color: #333; margin: 0 0 6px 0;"></h2>
-                <div id="modalPrecio" style="font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px;"></div>
+                <div id="modalPrecio" style="font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 4px;"></div>
+                <div id="modalPromoText" style="font-size: 12px; font-weight: bold; color: #e74c3c; margin-bottom: 12px;"></div>
                 
                 <!-- Controles de cantidad y botón de carrito para el producto principal -->
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
@@ -405,212 +407,193 @@
     </div>
 
     <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
-
     <script>
+        const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vREU9i8w61r00jM9YmB7vj86hL6YmB7vj86hL6YmB7vj86hL6YmB7vj86hL6YmB7vj86hL6Y/pub?output=csv";
+        let SHEET_URL = localStorage.getItem("sheetUrl_custom") || DEFAULT_SHEET_URL;
+
+        let inventory = [];
+        let cart = {};
+        let currentCategory = 'TODOS';
+        let currentPage = 1;
+        const itemsPerPage = 12;
+        let busquedaActiva = false;
+        let productQuantities = {};
+        let modalProductKey = null;
+        let currentSlide = 0;
+        let slideInterval;
         let lastScrollTop = 0;
-        const searchBarWrapper = document.getElementById('searchBarWrapper');
 
-        window.addEventListener('scroll', function() {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > lastScrollTop && scrollTop > 50) {
-                searchBarWrapper.classList.add('hidden');
-            } else {
-                searchBarWrapper.classList.remove('hidden');
-            }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, false);
-
-        let currentIndex = 0;
-        function changeSlide() {
-            const slides = document.querySelectorAll('.slide');
-            if (slides.length === 0) return;
-            currentIndex = (currentIndex + 1) % slides.length;
-            const container = document.getElementById('sliderContainer');
-            container.style.transform = `translateX(-${currentIndex * 100}%)`;
-        }
-        setInterval(changeSlide, 4000);
-
-        let allProducts = [], carrito = [], categoriaSeleccionada = 'TODOS';
-        let sugCantidades = {}, cardCantidades = {}, modalCantidades = {}, principalModalCantidad = 1;
-        let productoModalActual = null;
-        let paginaActual = 1;
-        const productosPorPagina = 12;
-
-        window.onload = () => { loadInventory(false); };
-
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('cartModal');
-            const cartBtn = document.querySelector('.header-cart-btn');
-            const searchContainer = document.querySelector('.search-container');
-            const productModal = document.getElementById('productModal');
-
-            if (modal.style.display === 'flex' && !modal.contains(event.target) && !cartBtn.contains(event.target)) modal.style.display = 'none';
-            if (productModal.style.display === 'flex' && event.target === productModal) productModal.style.display = 'none';
-            if (!searchContainer.contains(event.target)) {
-                document.getElementById('searchSuggestions').style.display = 'none';
-                document.body.classList.remove('search-active');
-            }
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("sheetUrl").value = SHEET_URL;
+            loadInventory();
+            initSlider();
+            setupScrollHandler();
         });
 
-        function toggleMenu(e) {
-            const modal = document.getElementById('menuModal');
-            if (!e || e.target === modal || e.currentTarget.classList.contains('menu-icon')) modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        function setupScrollHandler() {
+            window.addEventListener("scroll", () => {
+                if (busquedaActiva) return;
+                let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+                let searchWrapper = document.getElementById("searchBarWrapper");
+                
+                if (currentScroll > lastScrollTop && currentScroll > 50) {
+                    searchWrapper.classList.add("hidden");
+                } else {
+                    searchWrapper.classList.remove("hidden");
+                }
+                lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+            }, { passive: true });
         }
 
-        function toggleAdminPanel() {
-            toggleMenu();
-            const panel = document.getElementById('adminPanel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        function initSlider() {
+            const container = document.getElementById("sliderContainer");
+            const slides = container.querySelectorAll(".slide");
+            if(slides.length === 0) return;
+            
+            slideInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                container.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }, 3500);
         }
 
-        async function loadInventory(save) {
-            let url = localStorage.getItem('savedSheetUrl') || "https://docs.google.com/spreadsheets/d/1bXSibj51JO5ilbs_HRkUy96-gTXQmC2NxGsyPXNyDU8/edit?usp=sharing";
-            if (save) { url = document.getElementById('sheetUrl').value; localStorage.setItem('savedSheetUrl', url); }
-            url = url.split('/edit')[0] + '/export?format=csv';
-            try {
-                const res = await fetch(url);
-                const data = await res.text();
-                const lines = data.split('\n');
-                allProducts = lines.slice(1).map(line => {
-                    const cols = line.split(',');
-                    return { 
-                        nombre: cols[0] || '', 
-                        existencia: cols[1] || '', 
-                        precio: parseFloat(cols[2]) || 0, 
-                        categoria: (cols[3] || 'GENERAL').toUpperCase(), 
-                        imagen: cols[4] ? cols[4].trim() : '', 
-                        mostrar: cols[5] ? cols[5].trim().toUpperCase() : 'SI',
-                        minDesc: parseInt(cols[6]) || 0, 
-                        precioDesc: parseFloat(cols[7]) || 0 
-                    };
-                }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
-                allProducts.forEach(p => { 
-                    sugCantidades[p.nombre] = 1; 
-                    cardCantidades[p.nombre] = 1;
-                    modalCantidades[p.nombre] = 1;
+        function loadInventory(isCustom = false) {
+            if (isCustom) {
+                const customUrl = document.getElementById("sheetUrl").value.trim();
+                if (customUrl) {
+                    SHEET_URL = customUrl;
+                    localStorage.setItem("sheetUrl_custom", SHEET_URL);
+                }
+                toggleAdminPanel();
+            }
+
+            fetch(SHEET_URL)
+                .then(response => response.text())
+                .then(data => {
+                    parseCSV(data);
+                    renderCategoriesMenu();
+                    renderProducts();
+                })
+                .catch(error => {
+                    console.error("Error al cargar el inventario:", error);
+                    document.getElementById("product-container").innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #e74c3c;">Error al cargar los productos. Verifique el enlace.</p>`;
                 });
-                generarMenuCategorias();
-                filtrarProductos();
-            } catch(e) { console.error(e); }
         }
 
-        function generarMenuCategorias() {
-            const container = document.getElementById('menuCategoriesList');
-            const cats = [...new Set(allProducts.map(p => p.categoria))];
-            container.innerHTML = `<button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>` + cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
-        }
+        function parseCSV(text) {
+            let lines = text.split("\n");
+            let result = [];
+            let headers = lines[0].split(",").map(h => h.trim().replace(/^["'](.+)["']$/, '$1'));
 
-        function seleccionarCategoria(cat) { 
-            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.body.classList.remove('search-active'); document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
-        }
-
-        function manejarBusqueda() {
-            const textoInput = document.getElementById('searchInput').value;
-            document.getElementById('clearSearchBtn').style.display = textoInput.length > 0 ? 'block' : 'none';
-            paginaActual = 1; filtrarProductos(); mostrarSugerenciasFlotantes(textoInput);
-        }
-
-        function limpiarBusqueda() {
-            document.getElementById('searchInput').value = ''; 
-            document.getElementById('clearSearchBtn').style.display = 'none'; 
-            document.getElementById('searchSuggestions').style.display = 'none'; 
-            document.body.classList.remove('search-active'); 
-            paginaActual = 1; 
-            filtrarProductos();
-        }
-
-        function mostrarSugerenciasFlotantes(texto) {
-            const suggestionsBox = document.getElementById('searchSuggestions'), suggestionsList = document.getElementById('suggestionsList');
-            if (!texto || texto.trim() === '') { 
-                suggestionsBox.style.display = 'none'; 
-                document.body.classList.remove('search-active'); 
-                return; 
-            }
-            
-            const filtrados = allProducts.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase())).slice(0, 5);
-            
-            if (filtrados.length === 0) { 
-                suggestionsBox.style.display = 'none'; 
-                document.body.classList.remove('search-active'); 
-                return; 
-            }
-
-            document.body.classList.add('search-active');
-
-            suggestionsList.innerHTML = filtrados.map(p => {
-                let qty = sugCantidades[p.nombre] || 1;
-                let promoRibbonText = '';
-                if (p.minDesc > 0) {
-                    let totalPromo = (p.minDesc * p.precioDesc).toFixed(2);
-                    promoRibbonText = `<div style="font-size: 10px; color: #16a085;">📦 Seleccione ${p.minDesc}X$${totalPromo}</div>`;
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                let currentline = parseCSVLine(lines[i]);
+                if (currentline.length >= headers.length) {
+                    let obj = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = currentline[j] ? currentline[j].trim().replace(/^["'](.+)["']$/, '$1') : "";
+                    }
+                    if (obj.Nombre && obj.Precio) {
+                        result.push({
+                            codigo: obj.Codigo || obj.id || Math.random().toString(),
+                            nombre: obj.Nombre,
+                            precio: parseFloat(obj.Precio) || 0,
+                            categoria: obj.Categoria || "GENERAL",
+                            imagen: obj.Imagen || "",
+                            promocion: obj.Promocion || ""
+                        });
+                    }
                 }
-                return `<div class="suggestion-item">
-                    <img class="suggestion-img" src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
-                    <div class="suggestion-info">
-                        <div class="suggestion-name">${p.nombre}</div>
-                        <div class="suggestion-price">$${p.precio.toFixed(2)}</div>
-                        ${promoRibbonText}
-                    </div>
-                    <div class="suggestion-actions">
-                        <div class="sug-qty-controls">
-                            <button class="sug-qty-btn" onclick="cambiarSugCantidad('${p.nombre}', -1, event)">-</button>
-                            <span class="sug-qty-num" id="sug-qty-${p.nombre}">${qty}</span>
-                            <button class="sug-qty-btn" onclick="cambiarSugCantidad('${p.nombre}', 1, event)">+</button>
-                        </div>
-                        <button class="sug-add-btn" onclick="agregarDesdeSugerencia('${p.nombre}', ${p.precio}, event)">🛒</button>
-                    </div>
-                </div>`;
-            }).join('');
-            suggestionsBox.style.display = 'block';
+            }
+            inventory = result;
         }
 
-        function cambiarSugCantidad(nombre, cambio, event) {
-            event.stopPropagation();
-            if (!sugCantidades[nombre]) sugCantidades[nombre] = 1;
-            sugCantidades[nombre] = Math.max(1, sugCantidades[nombre] + cambio);
-            document.getElementById(`sug-qty-${nombre}`).innerText = sugCantidades[nombre];
-        }
-
-        function agregarDesdeSugerencia(nombre, precio, event) {
-            event.stopPropagation();
-            const cantidad = sugCantidades[nombre] || 1;
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) item.cantidad += cantidad; else carrito.push({ nombre, precio, cantidad });
-            
-            sugCantidades[nombre] = 1;
-            actualizarCarritoBarra();
-        }
-
-        function filtrarProductos() {
-            const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
-            const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
-            if (paginaActual > totalPaginas) paginaActual = totalPaginas;
-            const productosPagina = filtrados.slice((paginaActual - 1) * productosPorPagina, paginaActual * productosPorPagina);
-            
-            document.getElementById('product-container').innerHTML = productosPagina.map(p => {
-                let promoRibbonHtml = '';
-                if (p.minDesc > 0) {
-                    let totalPromo = (p.minDesc * p.precioDesc).toFixed(2);
-                    promoRibbonHtml = `<div class="promo-badge-ribbon">Seleccione ${p.minDesc}X$${totalPromo}</div>`;
+        function parseCSVLine(text) {
+            let result = [];
+            let inQuotes = false;
+            let current = "";
+            for (let i = 0; i < text.length; i++) {
+                let c = text[i];
+                if (c === '"') {
+                    inQuotes = !inQuotes;
+                } else if (c === ',' && !inQuotes) {
+                    result.push(current);
+                    current = "";
+                } else {
+                    current += c;
                 }
+            }
+            result.push(current);
+            return result;
+        }
 
-                let currentCardQty = cardCantidades[p.nombre] || 1;
+        function renderCategoriesMenu() {
+            let categories = ['TODOS', ...new Set(inventory.map(item => item.categoria.toUpperCase()))];
+            let menuList = document.getElementById("menuCategoriesList");
+            menuList.innerHTML = "";
+            categories.forEach(cat => {
+                let btn = document.createElement("button");
+                btn.className = "menu-cat-btn";
+                btn.innerText = cat;
+                btn.onclick = () => {
+                    seleccionarCategoria(cat);
+                    toggleMenu();
+                };
+                menuList.appendChild(btn);
+            });
+        }
 
-                return `<div class="product-card">
-                    ${promoRibbonHtml}
-                    <div class="product-img-container" onclick="abrirModalProducto('${p.nombre}', ${p.precio}, '${p.imagen}', '${p.categoria}')">
-                        <img src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
+        function seleccionarCategoria(cat) {
+            currentCategory = cat.toUpperCase();
+            currentPage = 1;
+            limpiarBusqueda();
+            renderProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderProducts() {
+            let container = document.getElementById("product-container");
+            container.innerHTML = "";
+
+            let filtered = currentCategory === 'TODOS' 
+                ? inventory 
+                : inventory.filter(item => item.categoria.toUpperCase() === currentCategory);
+
+            let start = (currentPage - 1) * itemsPerPage;
+            let end = start + itemsPerPage;
+            let paginatedItems = filtered.slice(start, end);
+
+            if (paginatedItems.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 20px;">No hay productos en esta categoría.</p>`;
+                document.getElementById("pagination-section").innerHTML = "";
+                return;
+            }
+
+            paginatedItems.forEach(item => {
+                let key = item.codigo || item.nombre;
+                if (productQuantities[key] === undefined) productQuantities[key] = 1;
+                let qty = productQuantities[key];
+
+                let card = document.createElement("div");
+                card.className = "product-card";
+                
+                let promoRibbonHTML = item.promocion ? `<div class="promo-badge-ribbon">${item.promocion}</div>` : '';
+
+                card.innerHTML = `
+                    ${promoRibbonHTML}
+                    <div class="product-img-container" onclick="abrirModalProducto('${key}')">
+                        <img src="${item.imagen || 'placeholder.png'}" alt="${item.nombre}" loading="lazy" onerror="this.src='https://via.placeholder.com/150?text=Sin+Imagen'">
                     </div>
-                    <h3>${p.nombre}</h3>
-                    <p class="price">$${p.precio.toFixed(2)}</p>
+                    <div>
+                        <h3 onclick="abrirModalProducto('${key}')" style="cursor:pointer;" title="${item.nombre}">${item.nombre}</h3>
+                        <div class="price">$${item.precio.toFixed(2)}</div>
+                    </div>
                     <div class="product-bottom-action">
                         <div class="product-qty-box">
-                            <button class="product-qty-btn" onclick="cambiarCardCantidad('${p.nombre}', -1)">-</button>
-                            <span class="product-qty-num" id="card-qty-${p.nombre}">${currentCardQty}</span>
-                            <button class="product-qty-btn" onclick="cambiarCardCantidad('${p.nombre}', 1)">+</button>
+                            <button class="product-qty-btn" onclick="cambiarCantidadGrid('${key}', -1)">-</button>
+                            <span class="product-qty-num" id="grid-qty-${key}">${qty}</span>
+                            <button class="product-qty-btn" onclick="cambiarCantidadGrid('${key}', 1)">+</button>
                         </div>
-                        <button class="product-cart-action-btn" onclick="agregarAlCarritoDesdeTarjeta('${p.nombre}', ${p.precio})">
+                        <button class="product-cart-action-btn" onclick="agregarDesdeGrid('${key}')" title="Agregar al carrito">
                             <svg viewBox="0 0 24 24">
                                 <circle cx="9" cy="21" r="1"></circle>
                                 <circle cx="20" cy="21" r="1"></circle>
@@ -618,215 +601,356 @@
                             </svg>
                         </button>
                     </div>
-                </div>`;
-            }).join('');
-            renderizarPaginacion(totalPaginas);
+                `;
+                container.appendChild(card);
+            });
+
+            renderPagination(filtered.length);
         }
 
-        function abrirModalProducto(nombre, precio, imagen, categoria) {
-            productoModalActual = { nombre, precio };
-            principalModalCantidad = 1;
-            document.getElementById('modalPrincipalQty').innerText = '1';
+        function cambiarCantidadGrid(key, cambio) {
+            if (productQuantities[key] === undefined) productQuantities[key] = 1;
+            productQuantities[key] += cambio;
+            if (productQuantities[key] < 1) productQuantities[key] = 1;
+            let span = document.getElementById(`grid-qty-${key}`);
+            if (span) span.innerText = productQuantities[key];
+        }
 
-            document.getElementById('modalNombre').innerText = nombre;
-            document.getElementById('modalPrecio').innerText = `$${precio.toFixed(2)}`;
-            document.getElementById('modalImg').src = imagen || 'https://via.placeholder.com/150?text=Sin+Foto';
-
-            const relacionados = allProducts.filter(p => p.categoria === categoria && p.nombre !== nombre).slice(0, 4);
-            const containerRel = document.getElementById('modalRelacionados');
-
-            if (relacionados.length === 0) {
-                containerRel.innerHTML = `<p style="font-size: 12px; color: #888; text-align: center; grid-column: span 2;">No hay más productos en esta categoría.</p>`;
+        function agregarDesdeGrid(key) {
+            let item = inventory.find(i => (i.codigo || i.nombre) === key);
+            if (!item) return;
+            let qty = productQuantities[key] || 1;
+            
+            if (cart[key]) {
+                cart[key].cantidad += qty;
             } else {
-                containerRel.innerHTML = relacionados.map(r => {
-                    let qtyModal = modalCantidades[r.nombre] || 1;
-                    return `
-                        <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between;">
-                            <div onclick="abrirModalProducto('${r.nombre}', ${r.precio}, '${r.imagen}', '${r.categoria}')" style="cursor: pointer;">
-                                <div style="width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; background: #f9f9f9; border-radius: 6px; margin-bottom: 6px;">
-                                    <img src="${r.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                                </div>
-                                <div style="font-size: 12px; font-weight: bold; color: #333; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${r.nombre}</div>
-                                <div style="font-size: 13px; color: var(--accent-color); font-weight: bold; margin: 4px 0;">$${r.precio.toFixed(2)}</div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 4px; margin-top: 6px;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; background: #eef2f5; border-radius: 6px; padding: 2px; border: 1px solid #dcdcdc; flex-grow: 1; height: 32px;">
-                                    <button style="background:none; border:none; font-size:14px; font-weight:bold; color:#555; cursor:pointer; padding:0 6px;" onclick="cambiarModalCantidad('${r.nombre}', -1)">-</button>
-                                    <span style="font-size: 12px; font-weight: bold; color: #333;" id="modal-qty-${r.nombre}">${qtyModal}</span>
-                                    <button style="background:none; border:none; font-size:14px; font-weight:bold; color:#555; cursor:pointer; padding:0 6px;" onclick="cambiarModalCantidad('${r.nombre}', 1)">+</button>
-                                </div>
-                                <button style="background-color: var(--accent-color); border: none; border-radius: 6px; width: 34px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;" onclick="agregarDesdeModalRelacionado('${r.nombre}', ${r.precio})">
-                                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: #ffffff; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;">
-                                        <circle cx="9" cy="21" r="1"></circle>
-                                        <circle cx="20" cy="21" r="1"></circle>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                cart[key] = { ...item, cantidad: qty };
+            }
+            productQuantities[key] = 1;
+            let span = document.getElementById(`grid-qty-${key}`);
+            if (span) span.innerText = 1;
+
+            actualizarCarritoUI();
+            animarBotonCarrito();
+        }
+
+        function renderPagination(totalItems) {
+            let paginationSection = document.getElementById("pagination-section");
+            paginationSection.innerHTML = "";
+            let totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (totalPages <= 1) return;
+
+            let startItem = (currentPage - 1) * itemsPerPage + 1;
+            let endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            let container = document.createElement("div");
+            container.className = "pagination-container";
+
+            let info = document.createElement("div");
+            info.className = "pagination-info";
+            info.innerText = `Mostrando ${startItem}-${endItem} de ${totalItems} resultados`;
+            container.appendChild(info);
+
+            let controls = document.createElement("div");
+            controls.className = "pagination-controls";
+
+            let prevBtn = document.createElement("button");
+            prevBtn.className = "page-btn";
+            prevBtn.innerText = "Anterior";
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderProducts(); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+            controls.appendChild(prevBtn);
+
+            let nextBtn = document.createElement("button");
+            nextBtn.className = "page-btn";
+            nextBtn.innerText = "Siguiente";
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderProducts(); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+            controls.appendChild(nextBtn);
+
+            container.appendChild(controls);
+            paginationSection.appendChild(container);
+        }
+
+        function manejarBusqueda() {
+            let query = document.getElementById("searchInput").value.toLowerCase().trim();
+            let suggestionsBox = document.getElementById("searchSuggestions");
+            let suggestionsList = document.getElementById("suggestionsList");
+            let clearBtn = document.getElementById("clearSearchBtn");
+
+            if (query.length > 0) {
+                clearBtn.style.display = "block";
+            } else {
+                clearBtn.style.display = "none";
+                suggestionsBox.style.display = "none";
+                document.body.classList.remove("search-active");
+                busquedaActiva = false;
+                renderProducts();
+                return;
             }
 
-            document.getElementById('productModal').style.display = 'flex';
+            busquedaActiva = true;
+            document.body.classList.add("search-active");
+            let matches = inventory.filter(item => item.nombre.toLowerCase().includes(query) || item.categoria.toLowerCase().includes(query)).slice(0, 8);
+
+            suggestionsList.innerHTML = "";
+            if (matches.length === 0) {
+                suggestionsList.innerHTML = `<div style="padding: 15px; text-align: center; color: #777; font-size: 14px;">No se encontraron productos</div>`;
+            } else {
+                matches.forEach(item => {
+                    let key = item.codigo || item.nombre;
+                    let div = document.createElement("div");
+                    div.className = "suggestion-item";
+                    div.innerHTML = `
+                        <img src="${item.imagen || 'placeholder.png'}" class="suggestion-img" onerror="this.src='https://via.placeholder.com/150?text=Sin+Img'">
+                        <div class="suggestion-info">
+                            <span class="suggestion-name">${item.nombre}</span>
+                            <span class="suggestion-price">$${item.precio.toFixed(2)}</span>
+                        </div>
+                        <div class="suggestion-actions">
+                            <div class="sug-qty-controls">
+                                <button class="sug-qty-btn" onclick="event.stopPropagation(); cambiarSuggQty('${key}', -1)">-</button>
+                                <span class="sug-qty-num" id="sug-qty-${key}">1</span>
+                                <button class="sug-qty-btn" onclick="event.stopPropagation(); cambiarSuggQty('${key}', 1)">+</button>
+                            </div>
+                            <button class="sug-add-btn" onclick="event.stopPropagation(); agregarDesdeSugerencias('${key}')">🛒</button>
+                        </div>
+                    `;
+                    div.onclick = () => {
+                        abrirModalProducto(key);
+                        limpiarBusqueda();
+                    };
+                    suggestionsList.appendChild(div);
+                });
+            }
+            suggestionsBox.style.display = "block";
+        }
+
+        function cambiarSuggQty(key, cambio) {
+            let span = document.getElementById(`sug-qty-${key}`);
+            if (!span) return;
+            let val = parseInt(span.innerText) + cambio;
+            if (val < 1) val = 1;
+            span.innerText = val;
+        }
+
+        function agregarDesdeSugerencias(key) {
+            let span = document.getElementById(`sug-qty-${key}`);
+            let qty = span ? parseInt(span.innerText) : 1;
+            let item = inventory.find(i => (i.codigo || i.nombre) === key);
+            if (!item) return;
+
+            if (cart[key]) {
+                cart[key].cantidad += qty;
+            } else {
+                cart[key] = { ...item, cantidad: qty };
+            }
+            if (span) span.innerText = 1;
+            actualizarCarritoUI();
+            animarBotonCarrito();
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("clearSearchBtn").style.display = "none";
+            document.getElementById("searchSuggestions").style.display = "none";
+            document.body.classList.remove("search-active");
+            busquedaActiva = false;
+            renderProducts();
+        }
+
+        function abrirModalProducto(key) {
+            let item = inventory.find(i => (i.codigo || i.nombre) === key);
+            if (!item) return;
+            modalProductKey = key;
+
+            document.getElementById("modalImg").src = item.imagen || 'https://via.placeholder.com/150?text=Sin+Imagen';
+            document.getElementById("modalNombre").innerText = item.nombre;
+            document.getElementById("modalPrecio").innerText = `$${item.precio.toFixed(2)}`;
+            document.getElementById("modalPrincipalQty").innerText = "1";
+
+            let ribbon = document.getElementById("modalPromoRibbon");
+            let promoText = document.getElementById("modalPromoText");
+            if (item.promocion) {
+                ribbon.innerHTML = `<div class="promo-badge-ribbon" style="position:absolute; top:0; left:0;">${item.promocion}</div>`;
+                promoText.innerText = `Promoción: ${item.promocion}`;
+                promoText.style.display = "block";
+            } else {
+                ribbon.innerHTML = "";
+                promoText.style.display = "none";
+            }
+
+            let relacionadosContainer = document.getElementById("modalRelacionados");
+            relacionadosContainer.innerHTML = "";
+
+            let relacionados = inventory.filter(i => i.categoria.toUpperCase() === item.categoria.toUpperCase() && (i.codigo || i.nombre) !== key).slice(0, 4);
+            
+            if (relacionados.length === 0) {
+                relacionadosContainer.innerHTML = `<p style="grid-column: span 2; text-align: center; color: #888; font-size: 13px;">No hay productos similares</p>`;
+            } else {
+                relacionados.forEach(rel => {
+                    let relKey = rel.codigo || rel.nombre;
+                    let relCard = document.createElement("div");
+                    relCard.style.cssText = "background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 8px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;";
+                    relCard.innerHTML = `
+                        <div onclick="abrirModalProducto('${relKey}')" style="cursor: pointer;">
+                            <img src="${rel.imagen || 'placeholder.png'}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px;" onerror="this.src='https://via.placeholder.com/150?text=Sin+Img'">
+                            <div style="font-size: 12px; font-weight: bold; color: #333; margin-top: 4px; height: 28px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${rel.nombre}</div>
+                            <div style="font-size: 13px; font-weight: bold; color: var(--accent-color); margin: 2px 0;">$${rel.precio.toFixed(2)}</div>
+                        </div>
+                        <button onclick="agregarRelacionadoDesdeModal('${relKey}')" style="background: var(--accent-color); color: white; border: none; border-radius: 6px; padding: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 4px; width: 100%;">Agregar</button>
+                    `;
+                    relacionadosContainer.appendChild(relCard);
+                });
+            }
+
+            document.getElementById("productModal").style.display = "flex";
         }
 
         function cambiarPrincipalModalCantidad(cambio) {
-            principalModalCantidad = Math.max(1, principalModalCantidad + cambio);
-            document.getElementById('modalPrincipalQty').innerText = principalModalCantidad;
+            let span = document.getElementById("modalPrincipalQty");
+            let val = parseInt(span.innerText) + cambio;
+            if (val < 1) val = 1;
+            span.innerText = val;
         }
 
         function agregarProductoPrincipalDesdeModal() {
-            if (!productoModalActual) return;
-            const item = carrito.find(i => i.nombre === productoModalActual.nombre);
-            if (item) {
-                item.cantidad += principalModalCantidad;
+            if (!modalProductKey) return;
+            let qty = parseInt(document.getElementById("modalPrincipalQty").innerText) || 1;
+            let item = inventory.find(i => (i.codigo || i.nombre) === modalProductKey);
+            if (!item) return;
+
+            if (cart[modalProductKey]) {
+                cart[modalProductKey].cantidad += qty;
             } else {
-                carrito.push({ nombre: productoModalActual.nombre, precio: productoModalActual.precio, cantidad: principalModalCantidad });
+                cart[modalProductKey] = { ...item, cantidad: qty };
             }
-            principalModalCantidad = 1;
-            document.getElementById('modalPrincipalQty').innerText = '1';
-            actualizarCarritoBarra();
+
+            actualizarCarritoUI();
+            animarBotonCarrito();
+            cerrarModalProducto();
         }
 
-        function cambiarModalCantidad(nombre, cambio) {
-            if (!modalCantidades[nombre]) modalCantidades[nombre] = 1;
-            modalCantidades[nombre] = Math.max(1, modalCantidades[nombre] + cambio);
-            const el = document.getElementById(`modal-qty-${nombre}`);
-            if (el) el.innerText = modalCantidades[nombre];
-        }
+        function agregarRelacionadoDesdeModal(key) {
+            let item = inventory.find(i => (i.codigo || i.nombre) === key);
+            if (!item) return;
 
-        function agregarDesdeModalRelacionado(nombre, precio) {
-            const cantidadSeleccionada = modalCantidades[nombre] || 1;
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) {
-                item.cantidad += cantidadSeleccionada;
+            if (cart[key]) {
+                cart[key].cantidad += 1;
             } else {
-                carrito.push({ nombre, precio, cantidad: cantidadSeleccionada });
+                cart[key] = { ...item, cantidad: 1 };
             }
-            modalCantidades[nombre] = 1;
-            const el = document.getElementById(`modal-qty-${nombre}`);
-            if (el) el.innerText = 1;
-            
-            actualizarCarritoBarra();
+
+            actualizarCarritoUI();
+            animarBotonCarrito();
         }
 
         function cerrarModalProducto() {
-            document.getElementById('productModal').style.display = 'none';
+            document.getElementById("productModal").style.display = "none";
+            modalProductKey = null;
         }
 
-        function renderizarPaginacion(totalPaginas) {
-            const container = document.getElementById('pagination-section');
-            if (totalPaginas <= 1) { container.innerHTML = ''; return; }
-            let inicio = Math.max(1, paginaActual - 2), fin = Math.min(totalPaginas, inicio + 4);
-            if (fin - inicio < 4) inicio = Math.max(1, fin - 4);
-            let botones = '';
-            for (let i = inicio; i <= fin; i++) botones += `<button class="page-btn ${i === paginaActual ? 'active' : ''}" onclick="cambiarPagina(${i})">${i}</button>`;
-            container.innerHTML = `<div class="pagination-container"><div class="pagination-info">Página ${paginaActual} de ${totalPaginas}</div><div class="pagination-controls"><button class="page-btn" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>Anterior</button>${botones}<button class="page-btn" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>Siguiente</button></div></div>`;
-        }
-
-        function cambiarPagina(n) { paginaActual = n; filtrarProductos(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        function cambiarCardCantidad(nombre, cambio) {
-            if (!cardCantidades[nombre]) cardCantidades[nombre] = 1;
-            cardCantidades[nombre] = Math.max(1, cardCantidades[nombre] + cambio);
-            const el = document.getElementById(`card-qty-${nombre}`);
-            if (el) el.innerText = cardCantidades[nombre];
-        }
-
-        function agregarAlCarritoDesdeTarjeta(nombre, precio) {
-            const cantidadSeleccionada = cardCantidades[nombre] || 1;
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) {
-                item.cantidad += cantidadSeleccionada;
-            } else {
-                carrito.push({ nombre, precio, cantidad: cantidadSeleccionada });
-            }
-            cardCantidades[nombre] = 1;
-            const el = document.getElementById(`card-qty-${nombre}`);
-            if (el) el.innerText = 1;
+        function actualizarCarritoUI() {
+            let list = document.getElementById("cartItemsList");
+            let totalSection = document.getElementById("cartTotalSection");
+            let headerTotal = document.getElementById("headerCartTotal");
             
-            actualizarCarritoBarra();
-        }
+            list.innerHTML = "";
+            let total = 0;
+            let count = 0;
 
-        function cambiarCantidadCarrito(e, nombre, cambio) {
-            e.stopPropagation();
-            const item = carrito.find(i => i.nombre === nombre);
-            if (item) { 
-                item.cantidad += cambio; 
-                if (item.cantidad <= 0) {
-                    carrito = carrito.filter(i => i.nombre !== nombre);
-                }
-            }
-            actualizarCarritoBarra();
-        }
-
-        function actualizarCarritoBarra() {
-            let totalPrecio = 0;
-            
-            const carritoConPrecios = carrito.map(item => {
-                const productoBase = allProducts.find(p => p.nombre === item.nombre);
-                let precioFinal = item.precio;
-
-                if (productoBase && productoBase.minDesc > 0 && item.cantidad >= productoBase.minDesc) {
-                    precioFinal = productoBase.precioDesc;
-                }
-                
-                totalPrecio += (precioFinal * item.cantidad);
-                return { ...item, precioFinal };
-            });
-
-            document.getElementById('headerCartTotal').innerText = `$${totalPrecio.toFixed(2)}`;
-            
-            const list = document.getElementById('cartItemsList');
-            if (carrito.length === 0) { 
-                list.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>`; 
-                document.getElementById('cartTotalSection').innerHTML = ''; 
-                return; 
+            let keys = Object.keys(cart);
+            if (keys.length === 0) {
+                list.innerHTML = `<p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>`;
+                totalSection.innerHTML = "";
+                headerTotal.innerText = "$0.00";
+                return;
             }
 
-            list.innerHTML = carritoConPrecios.map(i => {
-                const subtotal = (i.precioFinal * i.cantidad).toFixed(2);
-                return `<div class="cart-item-row">
-                    <div>
-                        <strong>${i.nombre}</strong><br>
-                        <span style="color: #666; font-size: 11px;">$${subtotal} (${i.cantidad} unids)</span>
-                        ${i.precioFinal < i.precio ? '<span style="color: #16a085; font-size: 10px; display:block; font-weight:bold;">✓ ¡Precio de mayor aplicado!</span>' : ''}
+            keys.forEach(key => {
+                let item = cart[key];
+                let subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                count += item.cantidad;
+
+                let row = document.createElement("div");
+                row.className = "cart-item-row";
+                row.innerHTML = `
+                    <div style="flex-grow: 1; padding-right: 8px;">
+                        <div style="font-weight: bold;">${item.nombre}</div>
+                        <div style="color: #666;">$${item.precio.toFixed(2)} x ${item.cantidad}</div>
                     </div>
                     <div class="cart-qty-controls">
-                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button>
-                        <span style="font-weight: bold; min-width: 18px; text-align: center; font-size: 13px;">${i.cantidad}</span>
-                        <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', 1)">+</button>
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito('${key}', -1)">-</button>
+                        <span style="font-weight: bold; font-size: 13px; width: 18px; text-align: center;">${item.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidadCarrito('${key}', 1)">+</button>
                     </div>
-                </div>`;
-            }).join('');
-
-            document.getElementById('cartTotalSection').innerHTML = `<div class="cart-total-row"><span>Total:</span><span style="color: var(--accent-color);">$${totalPrecio.toFixed(2)}</span></div>`;
-        }
-
-        function toggleCartModal() { const modal = document.getElementById('cartModal'); modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex'; }
-
-        function enviarPedidoWhatsApp() {
-            if (carrito.length === 0) return alert("Tu carrito está vacío");
-            
-            let msg = "Hola, quiero hacer el siguiente pedido:\n";
-            let totalPrecio = 0;
-
-            carrito.forEach(i => {
-                const productoBase = allProducts.find(p => p.nombre === i.nombre);
-                let precioFinal = i.precio;
-                let esMayor = false;
-                if (productoBase && productoBase.minDesc > 0 && i.cantidad >= productoBase.minDesc) {
-                    precioFinal = productoBase.precioDesc;
-                    esMayor = true;
-                }
-                totalPrecio += (precioFinal * i.cantidad);
-                msg += `• ${i.cantidad}x ${i.nombre} - $${(precioFinal * i.cantidad).toFixed(2)}${esMayor ? ' (Precio de mayor)' : ''}\n`;
+                `;
+                list.appendChild(row);
             });
 
-            msg += `\n*Total: $${totalPrecio.toFixed(2)}*`;
-            window.open(`https://wa.me/50374184366?text=${encodeURIComponent(msg)}`);
-            carrito = []; actualizarCarritoBarra(); filtrarProductos(); toggleCartModal();
+            totalSection.innerHTML = `
+                <div class="cart-total-row">
+                    <span>Total:</span>
+                    <span>$${total.toFixed(2)}</span>
+                </div>
+            `;
+            headerTotal.innerText = `$${total.toFixed(2)}`;
+        }
+
+        function cambiarCantidadCarrito(key, cambio) {
+            if (!cart[key]) return;
+            cart[key].cantidad += cambio;
+            if (cart[key].cantidad <= 0) {
+                delete cart[key];
+            }
+            actualizarCarritoUI();
+        }
+
+        function toggleCartModal() {
+            let modal = document.getElementById("cartModal");
+            modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+        }
+
+        function toggleMenu(event) {
+            if (event && event.target !== event.currentTarget) return;
+            let modal = document.getElementById("menuModal");
+            modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+        }
+
+        function toggleAdminPanel() {
+            let panel = document.getElementById("adminPanel");
+            panel.style.display = panel.style.display === "block" ? "none" : "block";
+            toggleMenu();
+        }
+
+        function animarBotonCarrito() {
+            let btn = document.querySelector(".header-cart-btn");
+            btn.style.transform = "scale(1.15)";
+            setTimeout(() => { btn.style.transform = "scale(1)"; }, 200);
+        }
+
+        function enviarPedidoWhatsApp() {
+            let keys = Object.keys(cart);
+            if (keys.length === 0) {
+                alert("El carrito está vacío");
+                return;
+            }
+
+            let mensaje = "Hola, ¡quiero hacer el siguiente pedido desde Online Shop! 🛍️\n\n";
+            let total = 0;
+
+            keys.forEach(key => {
+                let item = cart[key];
+                let sub = item.precio * item.cantidad;
+                total += sub;
+                mensaje += `- ${item.cantidad}x ${item.nombre} ($${sub.toFixed(2)})\n`;
+            });
+
+            mensaje += `\n*Total a pagar: $${total.toFixed(2)}*\n\n¡Quedo a la espera de la confirmación!`;
+            let telefono = "50374184366";
+            let url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
         }
     </script>
 </body>
