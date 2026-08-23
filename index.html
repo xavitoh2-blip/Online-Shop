@@ -137,7 +137,9 @@
             padding: 10px 15px;
             border-bottom: 1px solid #f1f1f1;
             gap: 10px;
+            cursor: pointer;
         }
+        .suggestion-item:hover { background-color: #fafafa; }
         .suggestion-item:last-child { border-bottom: none; }
 
         .suggestion-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #f9f9f9; border: 1px solid #eee; flex-shrink: 0; }
@@ -345,14 +347,12 @@
             </div>
 
             <div style="padding: 15px; overflow-y: auto; flex-grow: 1;">
-                <!-- Contenedor de la imagen con soporte para la etiqueta de promoción -->
                 <div style="text-align: center; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px; position: relative; overflow: hidden;" id="modalImgContainer">
                     <img id="modalImg" src="" alt="" style="max-height: 150px; max-width: 100%; object-fit: contain; border-radius: 8px;">
                 </div>
                 <h2 id="modalNombre" style="font-size: 16px; color: #333; margin: 0 0 6px 0;"></h2>
                 <div id="modalPrecio" style="font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px;"></div>
                 
-                <!-- Controles de cantidad y botón de carrito para el producto principal -->
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; background: #eef2f5; border-radius: 8px; padding: 4px 6px; border: 1px solid #dcdcdc; flex-grow: 1; height: 42px;">
                         <button style="background:none; border:none; font-size:18px; font-weight:bold; color:#555; cursor:pointer; padding:0 10px;" onclick="cambiarPrincipalModalCantidad(-1)">-</button>
@@ -406,6 +406,7 @@
     </div>
 
     <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
+    
     <script>
         let lastScrollTop = 0;
         const searchBarWrapper = document.getElementById('searchBarWrapper');
@@ -544,14 +545,14 @@
                     let totalPromo = (p.minDesc * p.precioDesc).toFixed(2);
                     promoRibbonText = `<div style="font-size: 10px; color: #16a085;">📦 Seleccione ${p.minDesc}X$${totalPromo}</div>`;
                 }
-                return `<div class="suggestion-item">
+                return `<div class="suggestion-item" onclick="abrirModalPorNombreYLimpiarBusqueda('${p.nombre}')">
                     <img class="suggestion-img" src="${p.imagen || 'https://via.placeholder.com/150?text=Sin+Foto'}" alt="${p.nombre}" loading="lazy">
                     <div class="suggestion-info">
                         <div class="suggestion-name">${p.nombre}</div>
                         <div class="suggestion-price">$${p.precio.toFixed(2)}</div>
                         ${promoRibbonText}
                     </div>
-                    <div class="suggestion-actions">
+                    <div class="suggestion-actions" onclick="event.stopPropagation()">
                         <div class="sug-qty-controls">
                             <button class="sug-qty-btn" onclick="cambiarSugCantidad('${p.nombre}', -1, event)">-</button>
                             <span class="sug-qty-num" id="sug-qty-${p.nombre}">${qty}</span>
@@ -562,6 +563,12 @@
                 </div>`;
             }).join('');
             suggestionsBox.style.display = 'block';
+        }
+
+        function abrirModalPorNombreYLimpiarBusqueda(nombre) {
+            document.getElementById('searchSuggestions').style.display = 'none';
+            document.body.classList.remove('search-active');
+            abrirModalPorNombre(nombre);
         }
 
         function cambiarSugCantidad(nombre, cambio, event) {
