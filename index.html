@@ -480,11 +480,15 @@
                         return parseFloat(val.replace('$', '').replace(',', '.')) || 0;
                     };
 
+                    // Procesa múltiples categorías separadas por coma en la columna 3 (ej. "BEBIDAS, OFERTAS")
+                    const catRaw = cols[3] || 'GENERAL';
+                    const categoriasArray = catRaw.toUpperCase().split(',').map(c => c.trim()).filter(c => c.length > 0);
+
                     return { 
                         nombre: cols[0] || '', 
                         existencia: cols[1] || '', 
                         precio: limpiarNum(cols[2]), 
-                        categoria: (cols[3] || 'GENERAL').toUpperCase(), 
+                        categoria: categoriasArray.length > 0 ? categoriasArray : ['GENERAL'], 
                         imagen: cols[4] || '', 
                         mostrar: cols[5] ? cols[5].toUpperCase() : 'SI',
                         minDesc: parseInt(cols[6]) || 0, 
@@ -504,7 +508,9 @@
 
         function generarMenuCategorias() {
             const container = document.getElementById('menuCategoriesList');
-            const cats = [...new Set(allProducts.map(p => p.categoria))];
+            // Extrae todas las categorías desglosadas y quita duplicados
+            const todasLasCategorias = allProducts.flatMap(p => p.categoria);
+            const cats = [...new Set(todasLasCategorias)];
             container.innerHTML = `<button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>` + cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
         }
 
@@ -597,7 +603,13 @@
 
         function filtrarProductos() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
+            // Permite filtrar evaluando si la categoría seleccionada está en el arreglo de categorías del producto
+            const filtrados = allProducts.filter(p => {
+                const cumpleCategoria = (categoriaSeleccionada === 'TODOS' || p.categoria.includes(categoriaSeleccionada));
+                const cumpleTexto = p.nombre.toLowerCase().includes(texto);
+                return cumpleCategoria && cumpleTexto;
+            });
+
             const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
             if (paginaActual > totalPaginas) paginaActual = totalPaginas;
             const productosPagina = filtrados.slice((paginaActual - 1) * productosPorPagina, paginaActual * productosPorPagina);
@@ -665,7 +677,12 @@
                 imgContainer.appendChild(ribbon);
             }
 
-            const relacionados = allProducts.filter(item => item.categoria === p.categoria && item.nombre !== p.nombre).slice(0, 4);
+            // Busca productos que compartan al menos una categoría con el producto seleccionado
+            const relacionados = allProducts.filter(item => 
+                item.nombre !== p.nombre && 
+                item.categoria.some(c => p.categoria.includes(c))
+            ).slice(0, 4);
+            
             const containerRel = document.getElementById('modalRelacionados');
 
             if (relacionados.length === 0) {
