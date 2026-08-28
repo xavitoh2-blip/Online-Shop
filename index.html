@@ -324,16 +324,7 @@
     </div>
 
     <div class="section-title">Categorías destacadas</div>
-    <div class="featured-categories" id="featuredCategoriesContainer">
-        <div class="cat-card" onclick="seleccionarCategoria('SELLO DE ORO')">
-            <img src="cat1.png" alt="Sabor Oriental">
-            <span>Sabor Oriental</span>
-        </div>
-        <div class="cat-card" onclick="seleccionarCategoria('ASADOS')">
-            <img src="cat2.png" alt="Asados">
-            <span>Asados</span>
-        </div>
-    </div>
+    <div class="featured-categories" id="featuredCategoriesContainer"></div>
 
     <div class="product-grid" id="product-container"></div>
     <div id="pagination-section"></div>
@@ -491,7 +482,6 @@
                 const data = await res.text();
                 const lines = data.split('\n');
                 
-                let banners = [];
                 let categoriasDestacadas = [];
                 
                 allProducts = lines.slice(1).map(line => {
@@ -502,18 +492,16 @@
                         return parseFloat(val.replace('$', '').replace(',', '.')) || 0;
                     };
 
-                    // Leer Banners (Columnas I y J -> Índices 8 y 9)
-                    if (cols[8] && cols[8].startsWith('http')) banners.push(cols[8]);
-                    if (cols[9] && cols[9].startsWith('http')) banners.push(cols[9]);
+                    // ---- LECTURA DE COLUMNAS DE GOOGLE SHEETS ----
+                    // Columna I (cols[8]): Nombre de la Categoría Destacada
+                    // Columna J (cols[9]): Mostrar Categoría Destacada (SI/NO)
+                    // Columna K (cols[10]): URL de la Imagen de la Categoría Destacada
+                    const catNombre = cols[8] || '';
+                    const mostrarCat = (cols[9] || '').toUpperCase();
+                    const catImg = cols[10] || '';
 
-                    // Leer Categorías Destacadas (Columna K -> Índice 10: Formato "Nombre|Imagen")
-                    if (cols[10] && cols[10].includes('|')) {
-                        const parts = cols[10].split('|');
-                        const catNombre = parts[0].trim();
-                        const catImg = parts[1].trim();
-                        if (catNombre && catImg && !categoriasDestacadas.some(c => c.nombre === catNombre)) {
-                            categoriasDestacadas.push({ nombre: catNombre, imagen: catImg });
-                        }
+                    if (catNombre && catImg && (mostrarCat === 'SI' || mostrarCat === 'SÍ') && !categoriasDestacadas.some(c => c.nombre.toUpperCase() === catNombre.toUpperCase())) {
+                        categoriasDestacadas.push({ nombre: catNombre, imagen: catImg });
                     }
 
                     return { 
@@ -528,24 +516,18 @@
                     };
                 }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
 
-                // Renderizar Banners dinámicos si se encontraron en las columnas I y J
-                if (banners.length > 0) {
-                    const sliderContainer = document.getElementById('sliderContainer');
-                    if (sliderContainer) {
-                        sliderContainer.innerHTML = banners.map(b => `<div class="slide"><img src="${b}" alt="Banner" loading="lazy"></div>`).join('');
-                    }
-                }
-
-                // Renderizar Categorías Destacadas dinámicas desde la columna K
-                if (categoriasDestacadas.length > 0) {
-                    const catContainer = document.getElementById('featuredCategoriesContainer');
-                    if (catContainer) {
+                // Renderizar Categorías Destacadas dinámicas
+                const catContainer = document.getElementById('featuredCategoriesContainer');
+                if (catContainer) {
+                    if (categoriasDestacadas.length > 0) {
                         catContainer.innerHTML = categoriasDestacadas.map(c => `
                             <div class="cat-card" onclick="seleccionarCategoria('${c.nombre.toUpperCase()}')">
-                                <img src="${c.imagen}" alt="${c.nombre}">
+                                <img src="${c.imagen}" alt="${c.nombre}" onerror="this.src='https://via.placeholder.com/130x160?text=Imagen'">
                                 <span>${c.nombre}</span>
                             </div>
                         `).join('');
+                    } else {
+                        catContainer.innerHTML = '<span style="font-size:12px; color:#888; padding: 10px;">No hay categorías destacadas habilitadas</span>';
                     }
                 }
                 
@@ -556,7 +538,7 @@
                 });
                 generarMenuCategorias();
                 filtrarProductos();
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error("Error al cargar inventario:", e); }
         }
 
         function generarMenuCategorias() {
@@ -921,5 +903,3 @@
     </script>
 </body>
 </html>
-
-```
