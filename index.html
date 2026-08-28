@@ -164,7 +164,6 @@
         .slide img { width: 100%; height: 100%; object-fit: cover; }
         .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
         
-        /* CORRECCIÓN DE TARJETAS DE CATEGORÍA PARA CELULAR */
         .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
         .featured-categories::-webkit-scrollbar { display: none; }
         
@@ -427,6 +426,7 @@
     </div>
 
     <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
+
     <script>
         let lastScrollTop = 0;
         const searchBarWrapper = document.getElementById('searchBarWrapper');
@@ -529,13 +529,15 @@
                         categoriasDestacadas.push({ nombre: catNombre, imagen: catImg });
                     }
 
+                    const estadoMostrar = cols[5] ? cols[5].toUpperCase() : 'SI';
+
                     return { 
                         nombre: cols[0] || '', 
                         existencia: cols[1] || '', 
                         precio: limpiarNum(cols[2]), 
                         categoria: (cols[3] || 'GENERAL').toUpperCase(), 
                         imagen: cols[4] || '', 
-                        mostrar: cols[5] ? cols[5].toUpperCase() : 'SI',
+                        mostrar: (estadoMostrar === '' || estadoMostrar === undefined) ? 'SI' : estadoMostrar,
                         minDesc: parseInt(cols[6]) || 0, 
                         precioDesc: limpiarNum(cols[7])
                     };
@@ -568,17 +570,30 @@
         function generarMenuCategorias() {
             const container = document.getElementById('menuCategoriesList');
             const cats = [...new Set(allProducts.map(p => p.categoria))];
-            container.innerHTML = `<button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>` + cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
+            
+            container.innerHTML = `
+                <button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>
+                <button class="menu-cat-btn" onclick="seleccionarCategoria('MAYOREO')">🏷️ MAYOREO</button>
+            ` + cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
         }
 
         function seleccionarCategoria(cat) { 
-            categoriaSeleccionada = cat; paginaActual = 1; filtrarProductos(); document.getElementById('searchSuggestions').style.display = 'none'; document.body.classList.remove('search-active'); document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').style.display = 'none'; document.getElementById('menuModal').style.display = 'none';
+            categoriaSeleccionada = cat; 
+            paginaActual = 1; 
+            filtrarProductos(); 
+            document.getElementById('searchSuggestions').style.display = 'none'; 
+            document.body.classList.remove('search-active'); 
+            document.getElementById('searchInput').value = ''; 
+            document.getElementById('clearSearchBtn').style.display = 'none'; 
+            document.getElementById('menuModal').style.display = 'none';
         }
 
         function manejarBusqueda() {
             const textoInput = document.getElementById('searchInput').value;
             document.getElementById('clearSearchBtn').style.display = textoInput.length > 0 ? 'block' : 'none';
-            paginaActual = 1; filtrarProductos(); mostrarSugerenciasFlotantes(textoInput);
+            paginaActual = 1; 
+            filtrarProductos(); 
+            mostrarSugerenciasFlotantes(textoInput);
         }
 
         function limpiarBusqueda() {
@@ -660,7 +675,18 @@
 
         function filtrarProductos() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
+            
+            const filtrados = allProducts.filter(p => {
+                const coincideTexto = p.nombre.toLowerCase().includes(texto);
+                
+                if (categoriaSeleccionada === 'MAYOREO') {
+                    return coincideTexto && (p.minDesc > 0 && p.precioDesc > 0);
+                }
+                
+                const coincideCategoria = (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada);
+                return coincideTexto && coincideCategoria;
+            });
+
             const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
             if (paginaActual > totalPaginas) paginaActual = totalPaginas;
             const productosPagina = filtrados.slice((paginaActual - 1) * productosPorPagina, paginaActual * productosPorPagina);
