@@ -163,11 +163,41 @@
         .slide { min-width: 100%; height: 100%; box-sizing: border-box; }
         .slide img { width: 100%; height: 100%; object-fit: cover; }
         .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
+        
+        /* CORRECCIÓN DE TARJETAS DE CATEGORÍA PARA CELULAR */
         .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
         .featured-categories::-webkit-scrollbar { display: none; }
-        .cat-card { min-width: 130px; height: 160px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-shrink: 0; background: #ddd; }
-        .cat-card img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-card span { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 13px; font-weight: bold; padding: 15px 8px 8px 8px; text-align: center; }
+        
+        .cat-card { 
+            width: 140px; 
+            height: 120px; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            position: relative; 
+            cursor: pointer; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+            flex-shrink: 0; 
+            background: #ddd; 
+        }
+        .cat-card img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center;
+            display: block;
+        }
+        .cat-card span { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: linear-gradient(transparent, rgba(0,0,0,0.85)); 
+            color: white; 
+            font-size: 13px; 
+            font-weight: bold; 
+            padding: 15px 8px 8px 8px; 
+            text-align: center; 
+        }
         
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
         .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
@@ -329,7 +359,6 @@
     <div class="product-grid" id="product-container"></div>
     <div id="pagination-section"></div>
 
-    <!-- Modal de Vista Previa y Productos Sugeridos (Estilo Tarjetas) -->
     <div id="productModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5000; justify-content: center; align-items: center; padding: 15px;">
         <div style="background: white; width: 100%; max-width: 480px; border-radius: 15px; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
             
@@ -492,10 +521,6 @@
                         return parseFloat(val.replace('$', '').replace(',', '.')) || 0;
                     };
 
-                    // ---- LECTURA DE COLUMNAS DE GOOGLE SHEETS ----
-                    // Columna I (cols[8]): Nombre de la Categoría Destacada
-                    // Columna J (cols[9]): Mostrar Categoría Destacada (SI/NO)
-                    // Columna K (cols[10]): URL de la Imagen de la Categoría Destacada
                     const catNombre = cols[8] || '';
                     const mostrarCat = (cols[9] || '').toUpperCase();
                     const catImg = cols[10] || '';
@@ -516,13 +541,12 @@
                     };
                 }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
 
-                // Renderizar Categorías Destacadas dinámicas
                 const catContainer = document.getElementById('featuredCategoriesContainer');
                 if (catContainer) {
                     if (categoriasDestacadas.length > 0) {
                         catContainer.innerHTML = categoriasDestacadas.map(c => `
                             <div class="cat-card" onclick="seleccionarCategoria('${c.nombre.toUpperCase()}')">
-                                <img src="${c.imagen}" alt="${c.nombre}" onerror="this.src='https://via.placeholder.com/130x160?text=Imagen'">
+                                <img src="${c.imagen}" alt="${c.nombre}" onerror="this.src='https://via.placeholder.com/140x120?text=Imagen'">
                                 <span>${c.nombre}</span>
                             </div>
                         `).join('');
@@ -863,7 +887,7 @@
                     <div>
                         <strong>${i.nombre}</strong><br>
                         <span style="color: #666; font-size: 11px;">$${subtotal} (${i.cantidad} unids)</span>
-                        ${i.precioFinal < i.precio ? '<span style="color: #16a085; font-size: 10px; display:block; font-weight:bold;">✓ ¡Precio de mayor applied!</span>' : ''}
+                        ${i.precioFinal < i.precio ? '<span style="color: #16a085; font-size: 10px; display:block; font-weight:bold;">✓ ¡Precio de mayor aplicado!</span>' : ''}
                     </div>
                     <div class="cart-qty-controls">
                         <button class="qty-btn" onclick="cambiarCantidadCarrito(event, '${i.nombre}', -1)">-</button>
