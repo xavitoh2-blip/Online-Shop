@@ -2,411 +2,623 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Online Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda y Mini Súper Online Shop</title>
     <style>
-        :root { --accent-color: #f39c12; --bg-color: #f4f4f9; --primary-color: #6d4c41; }
-        
-        *, *::before, *::after { box-sizing: border-box; }
-        
-        html, body { 
-            margin: 0; 
-            padding: 0; 
-            background-color: var(--bg-color); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            width: 100%;
-            height: 100%;
-            touch-action: manipulation;
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-color: #f4f6f7;
+            --card-bg: #ffffff;
         }
 
-        body { 
-            padding-top: 70px; 
-            padding-bottom: 40px; 
-            -webkit-text-size-adjust: 100%; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: #333;
         }
 
-        body.search-active {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        
-        header { 
-            background-color: #ffffff; 
-            color: var(--accent-color); 
-            padding: 15px; 
-            position: fixed;
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            border-bottom: 1px solid #e0e0e0;
-            z-index: 2000;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .header-top { display: flex; align-items: center; justify-content: space-between; }
-        .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
-        
-        .welcome-text { 
-            font-size: 18px; 
-            font-weight: bold; 
-            flex-grow: 1; 
-            margin-left: 15px; 
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-icon {
+            font-size: 24px;
             cursor: pointer;
-            user-select: none;
-            color: var(--accent-color);
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
         }
 
         .header-cart-btn {
-            background: transparent;
-            padding: 0;
+            background-color: var(--accent-color);
+            color: white;
             border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            color: var(--accent-color);
-            font-weight: bold;
-            font-size: 18px;
+            gap: 5px;
         }
-        .header-cart-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: currentColor;
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        .header-cart-btn span { font-size: 18px; color: var(--accent-color); }
 
+        /* Search Bar */
         .search-bar-wrapper {
-            background-color: #ffffff;
-            padding: 10px 15px 12px 15px;
-            position: fixed;
-            top: 65px; 
-            left: 0;
-            width: 100%;
-            z-index: 1900;
-            border-bottom: 1px solid #eee;
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .search-bar-wrapper.hidden {
             transform: translateY(-100%);
             opacity: 0;
-            pointer-events: none;
+            height: 0;
+            padding: 0 15px;
+            overflow: hidden;
         }
 
-        .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
-        .search-box { background: white; display: flex; align-items: center; padding: 10px 15px; border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; border: 1px solid #e0e0e0; }
-        
-        .search-box input { border: none; outline: none; width: 100%; font-size: 16px; margin-left: 10px; color: #333; background: transparent; -webkit-appearance: none; }
-        .search-box span { color: var(--accent-color); font-weight: bold; }
-        .clear-search { cursor: pointer; color: var(--accent-color); font-weight: bold; padding: 0 5px; font-size: 16px; display: none; }
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
 
-        #searchSuggestions {
-            display: none;
-            position: absolute;
-            top: 52px;
-            left: 0;
+        .search-input {
             width: 100%;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            z-index: 3000;
-            max-height: 350px; 
-            overflow-y: auto;
-            border: 1px solid #e0e0e0;
+            padding: 10px 35px 10px 15px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
         }
 
-        .suggestions-header {
-            font-size: 15px;
+        .clear-search {
+            position: absolute;
+            right: 12px;
+            cursor: pointer;
+            color: #888;
+            display: none;
             font-weight: bold;
-            color: #333;
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            background: #fafafa;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 1001;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .suggestion-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px 15px;
-            border-bottom: 1px solid #f1f1f1;
-            gap: 10px;
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
             cursor: pointer;
         }
-        .suggestion-item:hover { background-color: #fafafa; }
-        .suggestion-item:last-child { border-bottom: none; }
 
-        .suggestion-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #f9f9f9; border: 1px solid #eee; flex-shrink: 0; }
-        .suggestion-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-        .suggestion-name { font-size: 13px; font-weight: bold; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .suggestion-price { font-size: 14px; font-weight: bold; color: var(--accent-color); margin-top: 2px; }
-
-        .suggestion-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .sug-qty-controls { display: flex; align-items: center; background: #f0f0f0; border-radius: 8px; overflow: hidden; }
-        
-        .sug-qty-btn { background: #efefef; border: none; width: 35px; height: 35px; font-size: 16px; font-weight: bold; color: #444; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
-        .sug-qty-btn:active { background: #e0e0e0; }
-        .sug-qty-num { font-size: 16px; font-weight: bold; color: #333; width: 30px; text-align: center; }
-
-        .sug-add-btn { background-color: var(--accent-color); color: white; border: none; width: 35px; height: 35px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .sug-add-btn:hover { filter: brightness(90%); }
-
-        .promo-slider { width: 92%; max-width: 600px; height: 200px; margin: 15px auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; background: #e0e0e0; }
-        .slides { display: flex; transition: transform 0.5s ease-in-out; width: 100%; height: 100%; }
-        .slide { min-width: 100%; height: 100%; box-sizing: border-box; }
-        .slide img { width: 100%; height: 100%; object-fit: cover; }
-        .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
-        .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
-        .featured-categories::-webkit-scrollbar { display: none; }
-        .cat-card { min-width: 130px; height: 160px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-shrink: 0; background: #ddd; }
-        .cat-card img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-card span { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; font-size: 13px; font-weight: bold; padding: 15px 8px 8px 8px; text-align: center; }
-        
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
-        .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
-        
-        .promo-badge-ribbon {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #e74c3c;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 4px 10px;
-            border-bottom-right-radius: 8px;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            letter-spacing: 0.3px;
+        .suggestion-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-right: 10px;
+            border-radius: 4px;
         }
 
-        .product-img-container { width: 100%; height: 130px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
-        .product-img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .product-card h3 { font-size: 14px; margin: 6px 0; color: #333; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .product-card .price { font-weight: bold; color: var(--accent-color); font-size: 16px; margin: 4px 0; }
-        
-        .product-bottom-action {
+        .suggestion-info {
+            flex-grow: 1;
+        }
+
+        .suggestion-name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .suggestion-price {
+            font-size: 12px;
+            color: var(--accent-color);
+        }
+
+        .suggestion-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 5px;
+        }
+
+        .sug-qty-controls {
+            display: flex;
+            align-items: center;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .sug-qty-btn {
+            border: none;
+            background: none;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .sug-qty-num {
+            font-size: 12px;
+            padding: 0 4px;
+        }
+
+        .sug-add-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        /* Banner Slider */
+        .slider-wrapper {
+            overflow: hidden;
+            width: 100%;
+            max-height: 180px;
+            background: #ddd;
+        }
+
+        .slider-container {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
             width: 100%;
         }
 
-        .product-qty-box { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            background: #eef2f5; 
-            border-radius: 8px; 
-            padding: 2px 4px; 
-            border: 1px solid #dcdcdc; 
-            flex-grow: 1; 
-            height: 40px;
+        .slide {
+            min-width: 100%;
+            box-sizing: border-box;
         }
-        .product-qty-btn { background: none; border: none; font-size: 16px; font-weight: bold; color: #555; cursor: pointer; padding: 0 8px; }
-        .product-qty-num { font-size: 16px; font-weight: bold; color: #333; }
 
-        .product-cart-action-btn {
-            background-color: var(--accent-color); 
-            border: none;
-            border-radius: 8px;
-            width: 44px;
-            height: 40px;
+        .slide img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Layout & Sections */
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 15px 15px 5px 15px;
+            color: #444;
+        }
+
+        /* Categorías Destacadas Generadas Dinámicamente */
+        .featured-categories {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 15px;
+            scrollbar-width: none;
+        }
+
+        .featured-categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-card {
+            min-width: 90px;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .product-cart-action-btn:hover { filter: brightness(90%); }
-        .product-cart-action-btn svg {
-            width: 22px;
-            height: 22px;
-            stroke: #ffffff;
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            border: 1px solid #eaeaea;
         }
 
-        .pagination-container { text-align: left; margin: 20px 15px 30px 15px; display: flex; flex-direction: column; align-items: flex-start; }
-        .pagination-info { font-size: 15px; color: #555; margin-bottom: 8px; font-weight: 500; }
-        .pagination-controls { display: inline-flex; border: 1px solid #dcdcdc; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .page-btn { background: white; border: none; padding: 10px 16px; font-size: 14px; color: #444; cursor: pointer; border-right: 1px solid #dcdcdc; font-weight: 400; }
-        .page-btn:last-child { border-right: none; }
-        .page-btn:hover:not(:disabled) { background: #f8f8f8; }
-        .page-btn:disabled { color: #bbb; cursor: not-allowed; background: #fafafa; }
-        .page-btn.active { background: var(--accent-color); color: white; font-weight: bold; }
-        
-        .whatsapp-float {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #25d366;
+        .cat-card img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 6px;
+        }
+
+        .cat-card span {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            color: #555;
+            word-wrap: break-word;
+        }
+
+        /* Grid Productos */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            padding: 15px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .promo-badge-ribbon {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #16a085;
             color: white;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .product-img-container {
+            width: 100%;
+            height: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 1000;
             cursor: pointer;
-            text-decoration: none;
+            margin-bottom: 8px;
         }
-        .whatsapp-float:hover { filter: brightness(90%); }
 
-        #cartModal { display: none; position: fixed; top: 70px; right: 15px; max-width: 320px; width: 90%; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 3500; max-height: 65vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
-        .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        #cartItemsList { overflow-y: auto; max-height: 35vh; flex-grow: 1; }
-        .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f1f1; padding-bottom: 6px; font-size: 13px; color: #333; }
-        .cart-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; margin-top: 10px; padding-top: 8px; border-top: 2px solid #ddd; color: #111; }
-        .cart-qty-controls { display: flex; align-items: center; gap: 6px; }
-        .qty-btn { background: #eee; border: none; width: 28px; height: 28px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #333; touch-action: manipulation; }
-        .qty-btn:hover { background: var(--accent-color); color: white; }
-        
-        #menuModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; }
-        .menu-content { width: 75%; max-width: 300px; height: 100%; background: white; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
-        .menu-content h3 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .menu-cat-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; text-align: left; font-weight: bold; color: #444; cursor: pointer; font-size: 15px; }
-        .menu-cat-btn:hover { background: var(--accent-color); color: white; }
-        #adminPanel { display: none; background: #fff; padding: 15px; margin: 15px; border: 2px dashed var(--accent-color); border-radius: 10px; text-align: center; }
+        .product-img-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .product-card h3 {
+            font-size: 13px;
+            margin: 0 0 4px 0;
+            height: 32px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .product-card .price {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 0 0 8px 0;
+        }
+
+        .product-bottom-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+        }
+
+        .product-qty-box {
+            display: flex;
+            align-items: center;
+            background: #eef2f5;
+            border-radius: 6px;
+            padding: 2px;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .product-qty-btn {
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        .product-qty-num {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .product-cart-action-btn {
+            background: var(--accent-color);
+            border: none;
+            border-radius: 6px;
+            width: 32px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .product-cart-action-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Paginación */
+        .pagination-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            gap: 8px;
+        }
+
+        .pagination-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modales */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 15px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Modal Menú Categorías */
+        .menu-modal-content {
+            background: white;
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 2001;
+            padding: 15px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            overflow-y: auto;
+        }
+
+        .menu-cat-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: left;
+            border: none;
+            background: none;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Carrito Flotante Modal */
+        .cart-modal-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 15px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .qty-btn {
+            background: #eee;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 15px 0;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Header Principal -->
     <header>
         <div class="header-top">
-            <div class="menu-icon" onclick="toggleMenu()">☰</div>
-            <div class="welcome-text" onclick="seleccionarCategoria('TODOS')">Online Shop</div>
-            
+            <div class="menu-icon" onclick="toggleMenu(event)">☰</div>
+            <div class="logo">Tienda y Mini Súper</div>
             <button class="header-cart-btn" onclick="toggleCartModal()">
-                <svg viewBox="0 0 24 24">
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <span id="headerCartTotal">$0.00</span>
+                🛒 <span id="headerCartTotal">$0.00</span>
             </button>
         </div>
     </header>
 
+    <!-- Barra de Búsqueda Flotante Ocultable -->
     <div class="search-bar-wrapper" id="searchBarWrapper">
         <div class="search-container">
-            <div class="search-box">
-                <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="¿Qué buscas?" onkeyup="manejarBusqueda()" oninput="manejarBusqueda()">
-                <span class="clear-search" id="clearSearchBtn" onclick="limpiarBusqueda()">✕</span>
-            </div>
-            <div id="searchSuggestions">
-                <div class="suggestions-header">Sugerencias</div>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar productos..." oninput="manejarBusqueda()">
+            <span class="clear-search" id="clearSearchBtn" onclick="limpiarBusqueda()">✕</span>
+            <div class="search-suggestions" id="searchSuggestions">
                 <div id="suggestionsList"></div>
             </div>
         </div>
     </div>
-    
-    <div class="promo-slider">
-        <div class="slides" id="sliderContainer">
-            <div class="slide"><img src="promo1.png" alt="Promo 1" loading="lazy"></div>
-            <div class="slide"><img src="promo2.png" alt="Promo 2" loading="lazy"></div>
-            <div class="slide"><img src="promo3.png" alt="Promo 3" loading="lazy"></div>
+
+    <!-- Banner Carrusel -->
+    <div class="slider-wrapper">
+        <div class="slider-container" id="sliderContainer">
+            <div class="slide"><img src="https://via.placeholder.com/600x180/2c3e50/ffffff?text=Ofertas+Especiales" alt="Banner 1"></div>
+            <div class="slide"><img src="https://via.placeholder.com/600x180/e74c3c/ffffff?text=Envíos+a+Domicilio" alt="Banner 2"></div>
         </div>
     </div>
 
+    <!-- Categorías Destacadas (Cargadas dinámicamente desde Col I, J, K) -->
     <div class="section-title">Categorías destacadas</div>
-    <div class="featured-categories">
-        <div class="cat-card" onclick="seleccionarCategoria('SELLO DE ORO')">
-            <img src="cat1.png" alt="Sabor Oriental">
-            <span>Sabor Oriental</span>
-        </div>
-        <div class="cat-card" onclick="seleccionarCategoria('ASADOS')">
-            <img src="cat2.png" alt="Asados">
-            <span>Asados</span>
-        </div>
-    </div>
+    <div class="featured-categories" id="contenedor-categorias"></div>
 
+    <!-- Grid de Productos -->
+    <div class="section-title">Productos</div>
     <div class="product-grid" id="product-container"></div>
+
+    <!-- Paginación -->
     <div id="pagination-section"></div>
 
-    <!-- Modal de Vista Previa y Productos Sugeridos (Estilo Tarjetas) -->
-    <div id="productModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5000; justify-content: center; align-items: center; padding: 15px;">
-        <div style="background: white; width: 100%; max-width: 480px; border-radius: 15px; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
-            
-            <div style="padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
-                <strong style="font-size: 15px; color: #333;">Detalle del producto</strong>
-                <span onclick="cerrarModalProducto()" style="cursor: pointer; font-size: 18px; color: #888; padding: 0 5px;">✕</span>
-            </div>
-
-            <div style="padding: 15px; overflow-y: auto; flex-grow: 1;">
-                <div style="text-align: center; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px; position: relative; overflow: hidden;" id="modalImgContainer">
-                    <img id="modalImg" src="" alt="" style="max-height: 150px; max-width: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <h2 id="modalNombre" style="font-size: 16px; color: #333; margin: 0 0 6px 0;"></h2>
-                <div id="modalPrecio" style="font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px;"></div>
-                
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: #eef2f5; border-radius: 8px; padding: 4px 6px; border: 1px solid #dcdcdc; flex-grow: 1; height: 42px;">
-                        <button style="background:none; border:none; font-size:18px; font-weight:bold; color:#555; cursor:pointer; padding:0 10px;" onclick="cambiarPrincipalModalCantidad(-1)">-</button>
-                        <span id="modalPrincipalQty" style="font-size: 15px; font-weight: bold; color: #333;">1</span>
-                        <button style="background:none; border:none; font-size:18px; font-weight:bold; color:#555; cursor:pointer; padding:0 10px;" onclick="cambiarPrincipalModalCantidad(1)">+</button>
-                    </div>
-                    <button style="background-color: var(--accent-color); border: none; border-radius: 8px; width: 48px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;" onclick="agregarProductoPrincipalDesdeModal()">
-                        <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; stroke: #ffffff; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;">
-
-                <h3 style="font-size: 15px; color: #333; margin-bottom: 12px; font-weight: bold;">Productos sugeridos</h3>
-                
-                <div id="modalRelacionados" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="menuModal" onclick="toggleMenu(event)">
-        <div class="menu-content" onclick="event.stopPropagation()">
+    <!-- Modal de Menú Lateral -->
+    <div class="modal" id="menuModal" onclick="toggleMenu(event)">
+        <div class="menu-modal-content" onclick="event.stopPropagation()">
             <h3>Categorías</h3>
-            <div id="menuCategoriesList" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex-grow: 1;"></div>
-            <button onclick="toggleAdminPanel()" style="background: none; border: none; color: #888; margin-top: auto; cursor: pointer; text-align: left; padding: 5px;">⚙️ Configurar enlace</button>
+            <div id="menuCategoriesList"></div>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+            <button class="menu-cat-btn" onclick="toggleAdminPanel()">⚙️ Configuración Sheet</button>
+            <div id="adminPanel" style="display: none; padding-top: 10px;">
+                <input type="text" id="sheetUrl" placeholder="URL de Google Sheets" style="width: 100%; padding: 6px; margin-bottom: 6px; box-sizing: border-box;">
+                <button onclick="loadInventory(true)" style="width: 100%; padding: 6px; background: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar y Cargar</button>
+            </div>
         </div>
     </div>
 
-    <div id="adminPanel">
-        <p style="font-size: 13px; margin: 0 0 8px 0;">Enlace de Google Sheets:</p>
-        <input type="text" id="sheetUrl" placeholder="https://..." style="width: 90%; padding: 6px; margin-bottom: 8px;">
-        <br>
-        <button onclick="loadInventory(true)" style="background: var(--accent-color); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer;">Guardar</button>
+    <!-- Modal Detalle del Producto -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModalProducto()">✕</span>
+            <div id="modalImgContainer" style="width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px;">
+                <img id="modalImg" src="" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+            </div>
+            <h2 id="modalNombre" style="font-size: 16px; margin: 0 0 5px 0;"></h2>
+            <div id="modalPrecio" style="font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 12px;"></div>
+            
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; background: #eee; border-radius: 6px; padding: 4px 8px;">
+                    <button style="border:none; background:none; font-weight:bold; cursor:pointer;" onclick="cambiarPrincipalModalCantidad(-1)">-</button>
+                    <span id="modalPrincipalQty" style="margin: 0 8px; font-weight:bold;">1</span>
+                    <button style="border:none; background:none; font-weight:bold; cursor:pointer;" onclick="cambiarPrincipalModalCantidad(1)">+</button>
+                </div>
+                <button style="flex-grow: 1; background: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;" onclick="agregarProductoPrincipalDesdeModal()">Agregar al Carrito</button>
+            </div>
+
+            <h4 style="margin: 15px 0 8px 0; font-size: 13px; color: #666;">Productos relacionados:</h4>
+            <div id="modalRelacionados" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
+        </div>
     </div>
 
-    <div id="cartModal" style="display: none;">
-        <div class="cart-header-title">
-            <span>🛍️ Tu Carrito</span>
-            <span onclick="toggleCartModal()" style="cursor: pointer; font-size: 16px; color: #888;">✕</span>
+    <!-- Modal Carrito de Compras -->
+    <div class="modal" id="cartModal">
+        <div class="cart-modal-content" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0;">Tu Carrito</h3>
+                <span style="cursor: pointer; font-weight: bold;" onclick="toggleCartModal()">✕</span>
+            </div>
+            <div id="cartItemsList"></div>
+            <div id="cartTotalSection"></div>
+            <button class="btn-whatsapp" onclick="enviarPedidoWhatsApp()">Completar Pedido por WhatsApp</button>
         </div>
-        <div id="cartItemsList">
-            <p style="text-align: center; color: #888; font-size: 13px;">Tu carrito está vacío</p>
-        </div>
-        <div id="cartTotalSection"></div>
-        <button onclick="enviarPedidoWhatsApp()" style="width: 100%; background: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px; font-size: 14px; cursor: pointer;">Pedir por WhatsApp</button>
     </div>
-
-    <a href="https://wa.me/50374184366" target="_blank" class="whatsapp-float">💬</a>
+    <!-- Código JavaScript Integrado -->
     <script>
         let lastScrollTop = 0;
         const searchBarWrapper = document.getElementById('searchBarWrapper');
@@ -488,7 +700,11 @@
                         imagen: cols[4] || '', 
                         mostrar: cols[5] ? cols[5].toUpperCase() : 'SI',
                         minDesc: parseInt(cols[6]) || 0, 
-                        precioDesc: limpiarNum(cols[7])
+                        precioDesc: limpiarNum(cols[7]),
+                        // Lectura de Columnas I, J y K desde Google Sheets
+                        catDestacada: cols[8] || '',
+                        mostrarCat: cols[9] ? cols[9].toUpperCase() : '',
+                        imagenCat: cols[10] || ''
                     };
                 }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
                 
@@ -497,9 +713,45 @@
                     cardCantidades[p.nombre] = 1;
                     modalCantidades[p.nombre] = 1;
                 });
+
+                generarCategoriasDestacadas();
                 generarMenuCategorias();
                 filtrarProductos();
             } catch(e) { console.error(e); }
+        }
+
+        // Genera dinámicamente el carrusel de categorías con Col I, J y K
+        function generarCategoriasDestacadas() {
+            const container = document.getElementById('contenedor-categorias');
+            if (!container) return;
+
+            const destacadasMap = new Map();
+
+            allProducts.forEach(p => {
+                if (p.catDestacada && p.imagenCat && p.mostrarCat !== 'NO') {
+                    const catNombre = p.catDestacada.trim().toUpperCase();
+                    if (!destacadasMap.has(catNombre)) {
+                        destacadasMap.set(catNombre, p.imagenCat.trim());
+                    }
+                }
+            });
+
+            if (destacadasMap.size === 0) {
+                container.innerHTML = `<p style="font-size:12px; color:#888; padding: 0 15px;">No hay categorías destacadas configuradas.</p>`;
+                return;
+            }
+
+            let html = '';
+            destacadasMap.forEach((imgUrl, catNombre) => {
+                html += `
+                    <div class="cat-card" onclick="seleccionarCategoria('${catNombre}')">
+                        <img src="${imgUrl}" alt="${catNombre}" onerror="this.src='https://via.placeholder.com/150?text=Sin+Foto'" loading="lazy">
+                        <span>${catNombre}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         function generarMenuCategorias() {
@@ -597,7 +849,12 @@
 
         function filtrarProductos() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = allProducts.filter(p => (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada) && p.nombre.toLowerCase().includes(texto));
+            const filtrados = allProducts.filter(p => {
+                const coincideCat = (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada || p.catDestacada.toUpperCase() === categoriaSeleccionada);
+                const coincideTexto = p.nombre.toLowerCase().includes(texto);
+                return coincideCat && coincideTexto;
+            });
+
             const totalPaginas = Math.ceil(filtrados.length / productosPorPagina) || 1;
             if (paginaActual > totalPaginas) paginaActual = totalPaginas;
             const productosPagina = filtrados.slice((paginaActual - 1) * productosPorPagina, paginaActual * productosPorPagina);
