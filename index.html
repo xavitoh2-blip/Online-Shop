@@ -485,7 +485,7 @@
         }
 
         function parseCSVLine(text) {
-            let p = '', c = '', r = [];
+            let p = '', r = [];
             let q = false;
             for (let i = 0; i < text.length; i++) {
                 let ch = text[i];
@@ -514,6 +514,7 @@
                 let categoriasDestacadas = [];
                 
                 allProducts = lines.slice(1).map(line => {
+                    if (!line.trim()) return null;
                     const cols = parseCSVLine(line).map(val => val ? val.replace(/^"|"$/g, '').trim() : '');
                     
                     const limpiarNum = (val) => {
@@ -531,9 +532,12 @@
 
                     const estadoMostrar = cols[5] ? cols[5].toUpperCase() : 'SI';
 
-                    // Proceso de multicategorías: separadas por comas en Google Sheets
+                    // Extracción de multicategorías separadas por comas
                     const rawCategoria = cols[3] || 'GENERAL';
-                    const categoriasLista = rawCategoria.split(',').map(c => c.trim().toUpperCase()).filter(Boolean);
+                    const categoriasLista = rawCategoria
+                        .split(',')
+                        .map(c => c.replace(/^"|"$/g, '').trim().toUpperCase())
+                        .filter(Boolean);
 
                     return { 
                         nombre: cols[0] || '', 
@@ -546,7 +550,7 @@
                         minDesc: parseInt(cols[6]) || 0, 
                         precioDesc: limpiarNum(cols[7])
                     };
-                }).filter(p => p.nombre !== '' && p.mostrar !== 'NO');
+                }).filter(p => p !== null && p.nombre !== '' && p.mostrar !== 'NO');
 
                 const catContainer = document.getElementById('featuredCategoriesContainer');
                 if (catContainer) {
@@ -574,7 +578,6 @@
 
         function generarMenuCategorias() {
             const container = document.getElementById('menuCategoriesList');
-            // Extraer todas las categorías únicas separadas por coma
             const todasCategorias = allProducts.flatMap(p => p.categorias);
             const cats = [...new Set(todasCategorias)].filter(c => c !== 'MAYOREO');
             
@@ -690,7 +693,6 @@
                     return coincideTexto && (p.minDesc > 0 && p.precioDesc > 0);
                 }
                 
-                // Verificación multicategoría usando includes() en la lista de categorías
                 const coincideCategoria = (categoriaSeleccionada === 'TODOS' || p.categorias.includes(categoriaSeleccionada.toUpperCase()));
                 return coincideTexto && coincideCategoria;
             });
@@ -762,7 +764,6 @@
                 imgContainer.appendChild(ribbon);
             }
 
-            // Relacionados: buscar productos que compartan al menos 1 categoría con el producto actual
             const relacionados = allProducts.filter(item => item.nombre !== p.nombre && item.categorias.some(cat => p.categorias.includes(cat))).slice(0, 4);
             const containerRel = document.getElementById('modalRelacionados');
 
