@@ -532,10 +532,10 @@
 
                     const estadoMostrar = cols[5] ? cols[5].toUpperCase() : 'SI';
 
-                    // Extracción de multicategorías separadas por comas
+                    // Extracción flexible de multicategorías (por guion, barra o coma)
                     const rawCategoria = cols[3] || 'GENERAL';
                     const categoriasLista = rawCategoria
-                        .split(',')
+                        .split(/[,/-]/)
                         .map(c => c.replace(/^"|"$/g, '').trim().toUpperCase())
                         .filter(Boolean);
 
@@ -690,7 +690,7 @@
                 const coincideTexto = p.nombre.toLowerCase().includes(texto);
                 
                 if (categoriaSeleccionada === 'MAYOREO') {
-                    return coincideTexto && (p.minDesc > 0 && p.precioDesc > 0);
+                    return coincideTexto && (p.categorias.includes('MAYOREO') || (p.minDesc > 0 && p.precioDesc > 0));
                 }
                 
                 const coincideCategoria = (categoriaSeleccionada === 'TODOS' || p.categorias.includes(categoriaSeleccionada.toUpperCase()));
