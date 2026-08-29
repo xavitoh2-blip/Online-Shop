@@ -531,11 +531,15 @@
 
                     const estadoMostrar = cols[5] ? cols[5].toUpperCase() : 'SI';
 
+                    // Limpiamos y convertimos las categorías del producto en un arreglo (separadas por comas, ej: "BEBIDAS, OFERTAS, DESTACADOS")
+                    const categoriasBrutas = cols[3] || 'GENERAL';
+                    const listaCategorias = categoriasBrutas.split(',').map(c => c.trim().toUpperCase()).filter(c => c.length > 0);
+
                     return { 
                         nombre: cols[0] || '', 
                         existencia: cols[1] || '', 
                         precio: limpiarNum(cols[2]), 
-                        categoria: (cols[3] || 'GENERAL').toUpperCase(), 
+                        categorias: listaCategorias, 
                         imagen: cols[4] || '', 
                         mostrar: (estadoMostrar === '' || estadoMostrar === undefined) ? 'SI' : estadoMostrar,
                         minDesc: parseInt(cols[6]) || 0, 
@@ -569,12 +573,14 @@
 
         function generarMenuCategorias() {
             const container = document.getElementById('menuCategoriesList');
-            const cats = [...new Set(allProducts.map(p => p.categoria))];
+            // Extraer todas las categorías únicas de todos los productos (aprovechando el arreglo de múltiples categorías)
+            const todasLasCats = allProducts.flatMap(p => p.categorias);
+            const catsUnicas = [...new Set(todasLasCats)];
             
             container.innerHTML = `
                 <button class="menu-cat-btn" onclick="seleccionarCategoria('TODOS')">📋 TODOS</button>
                 <button class="menu-cat-btn" onclick="seleccionarCategoria('MAYOREO')">🏷️ MAYOREO</button>
-            ` + cats.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
+            ` + catsUnicas.map(c => `<button class="menu-cat-btn" onclick="seleccionarCategoria('${c}')">📁 ${c}</button>`).join('');
         }
 
         function seleccionarCategoria(cat) { 
@@ -683,7 +689,8 @@
                     return coincideTexto && (p.minDesc > 0 && p.precioDesc > 0);
                 }
                 
-                const coincideCategoria = (categoriaSeleccionada === 'TODOS' || p.categoria === categoriaSeleccionada);
+                // Comprobamos si el producto incluye la categoría seleccionada en su lista de categorías
+                const coincideCategoria = (categoriaSeleccionada === 'TODOS' || p.categorias.includes(categoriaSeleccionada));
                 return coincideTexto && coincideCategoria;
             });
 
@@ -754,11 +761,12 @@
                 imgContainer.appendChild(ribbon);
             }
 
-            const relacionados = allProducts.filter(item => item.categoria === p.categoria && item.nombre !== p.nombre).slice(0, 4);
+            // Productos relacionados: comparten al menos una categoría con el producto actual y no son el mismo producto
+            const relacionados = allProducts.filter(item => item.nombre !== p.nombre && item.categorias.some(cat => p.categorias.includes(cat))).slice(0, 4);
             const containerRel = document.getElementById('modalRelacionados');
 
             if (relacionados.length === 0) {
-                containerRel.innerHTML = `<p style="font-size: 12px; color: #888; text-align: center; grid-column: span 2;">No hay más productos en esta categoría.</p>`;
+                containerRel.innerHTML = `<p style="font-size: 12px; color: #888; text-align: center; grid-column: span 2;">No hay más productos relacionados.</p>`;
             } else {
                 containerRel.innerHTML = relacionados.map(r => {
                     let qtyModal = modalCantidades[r.nombre] || 1;
