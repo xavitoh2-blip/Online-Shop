@@ -21,7 +21,7 @@
 
         body { 
             padding-top: 70px; 
-            padding-bottom: 40px; 
+            padding-bottom: 0px; 
             -webkit-text-size-adjust: 100%; 
         }
 
@@ -47,14 +47,14 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        /* Logo ajustado a la escala exacta del carrito */
+        /* Logo flexible para cualquier imagen */
         .header-logo {
-            height: 32px;
+            height: 40px;
             width: auto;
-            max-width: 220px;
+            max-width: 180px;
             object-fit: contain;
             cursor: pointer;
-            margin-left: 8px;
+            margin-left: 5px;
             margin-right: auto;
             display: block;
         }
@@ -298,6 +298,75 @@
         }
         .whatsapp-float:hover { filter: brightness(90%); }
 
+        /* Estilos del Pie de Página (Footer) */
+        .site-footer {
+            background-color: #f0f0f4;
+            color: #444;
+            padding: 25px 20px 85px 20px;
+            font-size: 13px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+
+        .footer-section h3, .footer-col h3 {
+            font-size: 15px;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .footer-section p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .footer-col {
+            flex: 1;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-col li {
+            margin-bottom: 6px;
+        }
+
+        .footer-col a {
+            color: #555;
+            text-decoration: none;
+        }
+
+        .footer-col a:hover {
+            text-decoration: underline;
+            color: var(--accent-color);
+        }
+
+        .footer-bottom {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .footer-bottom .credits {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+
         #cartModal { display: none; position: fixed; top: 70px; right: 15px; max-width: 320px; width: 90%; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 3500; max-height: 65vh; flex-direction: column; padding: 15px; border: 1px solid #ddd; }
         .cart-header-title { font-size: 16px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         #cartItemsList { overflow-y: auto; max-height: 35vh; flex-grow: 1; }
@@ -360,6 +429,47 @@
 
     <div class="product-grid" id="product-container"></div>
     <div id="pagination-section"></div>
+
+    <!-- Pie de página (Footer) -->
+    <footer class="site-footer">
+        <div class="footer-section">
+            <h3>Contáctanos</h3>
+            <p><strong>Tienda Online:</strong> +503 7418-4366</p>
+            <p><strong>Ruteo y Pedidos:</strong> +503 7996-6760</p>
+            <p><strong>Horario de atención:</strong> Lunes a Domingo, 7:00 AM – 9:00 PM</p>
+        </div>
+
+        <div class="footer-section">
+            <h3>Nuestras Sucursales</h3>
+            <p><strong>Sucursal 1:</strong> Primera calle poniente, Barrio San Sebastián, contiguo a Nevería.</p>
+            <p><strong>Sucursal 2:</strong> Calle El Centro, Locales Garrido, frente a Don Pollo.</p>
+        </div>
+
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Información</h3>
+                <ul>
+                    <li><a href="#" onclick="seleccionarCategoria('TODOS')">Ver Productos</a></li>
+                    <li><a href="#" onclick="seleccionarCategoria('MAYOREO')">Precios de Mayoreo</a></li>
+                    <li><a href="https://wa.me/50374184366" target="_blank">Escribir a WhatsApp</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Términos y condiciones</a></li>
+                    <li><a href="#">Política de privacidad</a></li>
+                    <li><a href="#">Garantía de productos</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>Derechos Reservados © 2026 Online Shop</p>
+            <p class="credits">Desarrollado por <strong>xavhz</strong></p>
+        </div>
+    </footer>
 
     <div id="productModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5000; justify-content: center; align-items: center; padding: 15px;">
         <div style="background: white; width: 100%; max-width: 480px; border-radius: 15px; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
