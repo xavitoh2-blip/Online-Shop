@@ -47,11 +47,11 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        /* Estilos del Logo Aumentado y Alineado a la Izquierda */
+        /* Logo ajustado a la escala exacta del carrito */
         .header-logo {
-            height: 42px;
-            max-width: 160px;
+            height: 32px;
             width: auto;
+            max-width: 220px;
             object-fit: contain;
             cursor: pointer;
             margin-left: 8px;
@@ -320,7 +320,6 @@
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
             
-            <!-- Logo ajustado de mayor tamaño y alineado a la izquierda -->
             <img src="logo.png" alt="Logo" class="header-logo" onclick="seleccionarCategoria('TODOS')">
             
             <button class="header-cart-btn" onclick="toggleCartModal()">
