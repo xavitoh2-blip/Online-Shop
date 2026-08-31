@@ -35,7 +35,7 @@
         header { 
             background-color: #ffffff; 
             color: var(--accent-color); 
-            padding: 15px; 
+            padding: 12px 15px; 
             position: fixed;
             top: 0;
             left: 0;
@@ -47,13 +47,14 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        /* Estilos del Logo Alineado a la Izquierda */
+        /* Estilos del Logo Aumentado y Alineado a la Izquierda */
         .header-logo {
-            height: 28px;
+            height: 42px;
+            max-width: 160px;
             width: auto;
             object-fit: contain;
             cursor: pointer;
-            margin-left: 12px;
+            margin-left: 8px;
             margin-right: auto;
             display: block;
         }
@@ -319,7 +320,7 @@
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
             
-            <!-- Logo alineado a la izquierda -->
+            <!-- Logo ajustado de mayor tamaño y alineado a la izquierda -->
             <img src="logo.png" alt="Logo" class="header-logo" onclick="seleccionarCategoria('TODOS')">
             
             <button class="header-cart-btn" onclick="toggleCartModal()">
