@@ -47,14 +47,15 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        .welcome-text { 
-            font-size: 18px; 
-            font-weight: bold; 
-            flex-grow: 1; 
-            margin-left: 15px; 
+        /* Estilos del Logo */
+        .header-logo {
+            height: 35px;
+            width: auto;
+            max-width: 180px;
+            object-fit: contain;
             cursor: pointer;
-            user-select: none;
-            color: var(--accent-color);
+            margin-left: 10px;
+            display: block;
         }
 
         .header-cart-btn {
@@ -317,7 +318,9 @@
     <header>
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
-            <div class="welcome-text" onclick="seleccionarCategoria('TODOS')">Online Shop</div>
+            
+            <!-- Etiqueta del Logo sustituyendo el texto -->
+            <img src="logo.png" alt="Logo" class="header-logo" onclick="seleccionarCategoria('TODOS')">
             
             <button class="header-cart-btn" onclick="toggleCartModal()">
                 <svg viewBox="0 0 24 24">
@@ -532,7 +535,6 @@
 
                     const estadoMostrar = cols[5] ? cols[5].toUpperCase() : 'SI';
 
-                    // Extracción flexible de multicategorías (por guion, barra o coma)
                     const rawCategoria = cols[3] || 'GENERAL';
                     const categoriasLista = rawCategoria
                         .split(/[,/-]/)
