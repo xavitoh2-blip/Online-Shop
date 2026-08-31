@@ -47,14 +47,14 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        /* Estilos del Logo */
+        /* Estilos del Logo Alineado a la Izquierda */
         .header-logo {
-            height: 35px;
+            height: 28px;
             width: auto;
-            max-width: 180px;
             object-fit: contain;
             cursor: pointer;
-            margin-left: 10px;
+            margin-left: 12px;
+            margin-right: auto;
             display: block;
         }
 
@@ -319,7 +319,7 @@
         <div class="header-top">
             <div class="menu-icon" onclick="toggleMenu()">☰</div>
             
-            <!-- Etiqueta del Logo sustituyendo el texto -->
+            <!-- Logo alineado a la izquierda -->
             <img src="logo.png" alt="Logo" class="header-logo" onclick="seleccionarCategoria('TODOS')">
             
             <button class="header-cart-btn" onclick="toggleCartModal()">
