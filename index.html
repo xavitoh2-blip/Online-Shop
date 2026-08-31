@@ -47,7 +47,7 @@
         .header-top { display: flex; align-items: center; justify-content: space-between; }
         .menu-icon { font-size: 24px; cursor: pointer; padding: 5px; color: var(--accent-color); }
         
-        /* Logo flexible para cualquier imagen */
+        /* Logo flexible */
         .header-logo {
             height: 40px;
             width: auto;
@@ -166,7 +166,7 @@
         .slide img { width: 100%; height: 100%; object-fit: cover; }
         .section-title { font-size: 17px; font-weight: bold; color: #333; margin: 20px 15px 10px 15px; }
         
-        .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; }
+        .featured-categories { display: flex; overflow-x: auto; gap: 12px; padding: 0 15px; scrollbar-width: none; min-height: 120px; }
         .featured-categories::-webkit-scrollbar { display: none; }
         
         .cat-card { 
@@ -200,7 +200,7 @@
             text-align: center; 
         }
         
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; padding: 15px; min-height: 400px; }
         .product-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
         
         .promo-badge-ribbon {
@@ -425,9 +425,17 @@
     </div>
 
     <div class="section-title">Categorías destacadas</div>
-    <div class="featured-categories" id="featuredCategoriesContainer"></div>
+    <div class="featured-categories" id="featuredCategoriesContainer">
+        <div style="padding: 10px; color: #888; font-size: 13px;">Cargando categorías...</div>
+    </div>
 
-    <div class="product-grid" id="product-container"></div>
+    <div class="product-grid" id="product-container">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 10px; color: #666;">
+            <p style="font-size: 15px; font-weight: bold; margin-bottom: 5px;">Cargando productos...</p>
+            <p style="font-size: 12px; color: #999;">Por favor espera un momento</p>
+        </div>
+    </div>
+
     <div id="pagination-section"></div>
 
     <!-- Pie de página (Footer) -->
@@ -618,9 +626,16 @@
         async function loadInventory(save) {
             let url = localStorage.getItem('savedSheetUrl') || "https://docs.google.com/spreadsheets/d/1bXSibj51JO5ilbs_HRkUy96-gTXQmC2NxGsyPXNyDU8/edit?usp=sharing";
             if (save) { url = document.getElementById('sheetUrl').value; localStorage.setItem('savedSheetUrl', url); }
+            
             url = url.split('/edit')[0] + '/export?format=csv';
+
+            const productContainer = document.getElementById('product-container');
+            const catContainer = document.getElementById('featuredCategoriesContainer');
+
             try {
                 const res = await fetch(url);
+                if (!res.ok) throw new Error("Error al consultar Google Sheets");
+                
                 const data = await res.text();
                 const lines = data.split('\n');
                 
@@ -664,7 +679,6 @@
                     };
                 }).filter(p => p !== null && p.nombre !== '' && p.mostrar !== 'NO');
 
-                const catContainer = document.getElementById('featuredCategoriesContainer');
                 if (catContainer) {
                     if (categoriasDestacadas.length > 0) {
                         catContainer.innerHTML = categoriasDestacadas.map(c => `
@@ -674,7 +688,7 @@
                             </div>
                         `).join('');
                     } else {
-                        catContainer.innerHTML = '<span style="font-size:12px; color:#888; padding: 10px;">No hay categorías destacadas habilitadas</span>';
+                        catContainer.innerHTML = '<span style="font-size:12px; color:#888; padding: 10px;">No hay categorías destacadas</span>';
                     }
                 }
                 
@@ -683,9 +697,20 @@
                     cardCantidades[p.nombre] = 1;
                     modalCantidades[p.nombre] = 1;
                 });
+
                 generarMenuCategorias();
                 filtrarProductos();
-            } catch(e) { console.error("Error al cargar inventario:", e); }
+
+            } catch(e) { 
+                console.error("Error al cargar inventario:", e);
+                if (productContainer) {
+                    productContainer.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 30px 10px;">
+                            <p style="color: #e74c3c; font-weight: bold;">No se pudieron cargar los productos.</p>
+                            <button onclick="loadInventory(false)" style="background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 8px;">Reintentar</button>
+                        </div>`;
+                }
+            }
         }
 
         function generarMenuCategorias() {
